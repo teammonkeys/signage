@@ -17,13 +17,13 @@ ReactDOM.render(<Router />, document.getElementById("root"));
 
 async function getAllFiles() {
   // The first folder to traverse is the root folder, called "Shared Documents"
-  let folder = "/Shared Documents";
+  const folder = "/Shared Documents";
   // This stack will contain subfolders to be checked for other subfolders
-  let stack = [];
+  const stack = [];
   // Start the list of folders with a reference to the root folder
-  let folders = [folder];
+  const folders = [folder];
   // Retrieve a list of all folders
-  let allFolders = await getAllFolders(folder, stack, folders);
+  const allFolders = await getAllFolders(folder, stack, folders);
   // Create an array for raw JSON files
   let fileArray = [];
   // Save a reference to the current file
@@ -107,7 +107,7 @@ function getAllFolders(folder, stack, folders) {
 }
 
 function getArrayFromJson(json) {
-  let array = [];
+  const array = [];
   json.forEach(value => {
     array.push(
       $.map(value, function(value, index) {
@@ -142,7 +142,7 @@ function start() {
 }
 
 function getSubfolders(array) {
-  let subfolders = [];
+  const subfolders = [];
   array.forEach(folder => {
     subfolders.push(getFolderUrl(folder));
   });
