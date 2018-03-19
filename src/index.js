@@ -9,8 +9,16 @@ import $ from "jquery";
 
 // EXECUTED CODE //
 
-start();
+// Initialize the SharePoint fetcher with the values from the SharePoint add-in
+start(
+  "https://rowansweng.sharepoint.com",
+  "155584b4-5dc2-4283-949d-af5986e39eb3",
+  "77IjS/vtrFuYXk2mq0XwA5AeX2Vy7ze0OvnikvWkfb4=",
+  "c437039a-84e9-47f2-ac34-b703bb7fcc59"
+);
+// Return all SharePoint files as a Promise
 getAllFiles();
+// Load the React Router, which sends the user to different pages in the app
 ReactDOM.render(<Router />, document.getElementById("root"));
 
 // END CODE //
@@ -42,14 +50,21 @@ async function getAllFiles() {
   return files;
 }
 
+/**
+ * Converts an array of files as arrays (after conversion from JSON) into
+ * objects of type File with name, type, and url properties.
+ * @param {The raw array of files to be converted} fileArray
+ */
 function getFilesFromArray(fileArray) {
   let file, name, type, url;
   let files = [];
   let rawFiles = [];
+  // Convert all JSON files fetched from SharePoint into arrays
   for (let i = 0; i < fileArray.length; i++) {
     file = fileArray[i];
     if (file.length > 0) {
       file = getArrayFromJson(file);
+      // Put all arrays into a parent array to be returned
       for (let j = 0; j < file.length; j++) {
         rawFiles.push(file[j]);
       }
@@ -106,6 +121,11 @@ function getAllFolders(folder, stack, folders) {
     });
 }
 
+/**
+ * Converts a given JSON file to an array to make its data
+ * easier to work with
+ * @param {The given JSON file} json
+ */
 function getArrayFromJson(json) {
   const array = [];
   json.forEach(value => {
@@ -126,29 +146,39 @@ function getFilesJson(folder) {
   return sp.web.getFolderByServerRelativeUrl(folder).files.get();
 }
 
-function start() {
+/**
+ * Initializes the SharePoint fetcher with data specified in SharePoint add-in.
+ * @param {The URL of your SharePoint site} url
+ * @param {The client ID of your SharePoint add-in} id
+ * @param {The client secret of your SharePoint add-in} secret
+ * @param {The realm of your SharePoint add-in} realm
+ */
+function start(url, id, secret, realm) {
   sp.setup({
     sp: {
       fetchClientFactory: () => {
-        return new SPFetchClient(
-          "https://rowansweng.sharepoint.com",
-          "155584b4-5dc2-4283-949d-af5986e39eb3",
-          "77IjS/vtrFuYXk2mq0XwA5AeX2Vy7ze0OvnikvWkfb4=",
-          "c437039a-84e9-47f2-ac34-b703bb7fcc59"
-        );
+        return new SPFetchClient(url, id, secret, realm);
       }
     }
   });
 }
 
-function getSubfolders(array) {
+/**
+ * Return all subfolders of the given folder.
+ * @param {The given folder} folder
+ */
+function getSubfolders(folder) {
   const subfolders = [];
-  array.forEach(folder => {
+  folder.forEach(folder => {
     subfolders.push(getFolderUrl(folder));
   });
   return subfolders;
 }
 
+/**
+ * Return the filename of the given file
+ * @param {The given file} file
+ */
 function getFileName(file) {
   return file[16];
 }
@@ -172,6 +202,9 @@ function getFileType(name) {
   return str[str.length - 1];
 }
 
+/**
+ * A File object with the relevant properties extracted from
+ */
 class File {
   constructor(name, type, url) {
     this.name = name;
