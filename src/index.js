@@ -53,7 +53,7 @@ async function getAllFiles() {
 /**
  * Converts an array of files as arrays (after conversion from JSON) into
  * objects of type File with name, type, and url properties.
- * @param {The raw array of files to be converted} fileArray
+ * @param filesArray The raw array of files to be converted
  */
 function getFilesFromArray(fileArray) {
   let file, name, type, url;
@@ -82,10 +82,10 @@ function getFilesFromArray(fileArray) {
 /**
  * Recursively find and return every folder on the SharePoint server
  * as an array of strings. Operates asynchronously.
- * @param {The current folder to be checked for subfolders} folder
- * @param {The stack of remaining folders to check} stack
- * @param {The list of all folder and subfolder paths} folders
- * @return {The list of all folder and subfolder paths}
+ * @param folder The current folder to be checked for subfolders
+ * @param stack The stack of remaining folders to check
+ * @param folders The list of all folder and subfolder paths
+ * @return The list of all folder and subfolder paths
  */
 function getAllFolders(folder, stack, folders) {
   // Fetch the JSON data from SharePoint
@@ -123,8 +123,8 @@ function getAllFolders(folder, stack, folders) {
 
 /**
  * Converts a given JSON file to an array to make its data
- * easier to work with
- * @param {The given JSON file} json
+ * easier to work with.
+ * @param json The given JSON file
  */
 function getArrayFromJson(json) {
   const array = [];
@@ -138,20 +138,28 @@ function getArrayFromJson(json) {
   return array;
 }
 
+/**
+ * Return all subfolders of a given parent folder.
+ * @param folder The given parent folder
+ */
 function getFoldersJson(folder) {
   return sp.web.getFolderByServerRelativeUrl(folder).folders.get();
 }
 
+/**
+ * Return all files in a given folder.
+ * @param folder The given folder
+ */
 function getFilesJson(folder) {
   return sp.web.getFolderByServerRelativeUrl(folder).files.get();
 }
 
 /**
  * Initializes the SharePoint fetcher with data specified in SharePoint add-in.
- * @param {The URL of your SharePoint site} url
- * @param {The client ID of your SharePoint add-in} id
- * @param {The client secret of your SharePoint add-in} secret
- * @param {The realm of your SharePoint add-in} realm
+ * @param url The URL of your SharePoint site
+ * @param id The client ID of your SharePoint add-in
+ * @param secret The client secret of your SharePoint add-in
+ * @param realm The realm of your SharePoint add-in
  */
 function start(url, id, secret, realm) {
   sp.setup({
@@ -165,7 +173,7 @@ function start(url, id, secret, realm) {
 
 /**
  * Return all subfolders of the given folder.
- * @param {The given folder} folder
+ * @param folder The given folder
  */
 function getSubfolders(folder) {
   const subfolders = [];
@@ -176,24 +184,32 @@ function getSubfolders(folder) {
 }
 
 /**
- * Return the filename of the given file
- * @param {The given file} file
+ * Return the filename of a given file.
+ * @param file The given file
  */
 function getFileName(file) {
   return file[16];
 }
 
+/**
+ * Return the relative SharePoint URL of a given folder.
+ * @param folder The given folder
+ */
 function getFolderUrl(folder) {
   return folder[8];
 }
 
+/**
+ * Return the relative SharePoint URL of a given file.
+ * @param file The given file
+ */
 function getFileUrl(file) {
   return file[17];
 }
 
 /**
  * Get the file type of a file with the given name
- * @param {The file's full name} name
+ * @param name The file's full name
  */
 function getFileType(name) {
   // Split a string by periods
@@ -204,6 +220,7 @@ function getFileType(name) {
 
 /**
  * A File object with the relevant properties extracted from
+ * array format
  */
 class File {
   constructor(name, type, url) {
