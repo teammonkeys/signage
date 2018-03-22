@@ -11,10 +11,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import "../css/Login.css";
 
 class Login extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-  }
-
   validateFields = event => {
     event.preventDefault();
     const username = this.usernameInput.value;

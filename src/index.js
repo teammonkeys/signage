@@ -17,7 +17,9 @@ start(
   "c437039a-84e9-47f2-ac34-b703bb7fcc59"
 );
 // Return all SharePoint files as a Promise
-getAllFiles();
+
+/////getAllFiles();
+
 // Load the React Router, which sends the user to different pages in the app
 ReactDOM.render(<Router />, document.getElementById("root"));
 

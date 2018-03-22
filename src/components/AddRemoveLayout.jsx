@@ -116,9 +116,4 @@ class AddRemoveLayout extends React.PureComponent {
     );
   }
 }
-
-module.exports = AddRemoveLayout;
-
-if (require.main === module) {
-  require("../test-hook.jsx")(module.exports);
-}
+export default AddRemoveLayout;

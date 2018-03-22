@@ -1,0 +1,12 @@
+.slide {
+  background-color: WhiteSmoke;
+  height: 450px;
+  width: 800px;
+  transform: scale(1);
+  transform-origin: top left;
+}
+
+.content-item {
+  height: auto;
+  width: 100%;
+}

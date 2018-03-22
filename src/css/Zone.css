@@ -1,3 +1,13 @@
+.zone {
+  background-color: lightgray;
+  flex: 1;
+}
+
+.zone-content {
+  width: 100%;
+  height: auto;
+}
+
 .react-grid-layout {
   position: relative;
   transition: height 200ms ease;
@@ -6,6 +16,7 @@
   transition: all 200ms ease;
   transition-property: left, top;
   background-color: lightgray;
+  display: flex;
 }
 .react-grid-item.cssTransforms {
   transition-property: transform;

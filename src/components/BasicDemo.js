@@ -4,15 +4,13 @@ import RGL, { WidthProvider } from "react-grid-layout";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-class NoDraggingLayout extends React.PureComponent {
+class BasicLayout extends React.PureComponent {
   static defaultProps = {
     className: "layout",
-    isDraggable: false,
-    isResizable: false,
-    items: 50,
-    cols: 12,
+    items: 20,
     rowHeight: 30,
-    onLayoutChange: function() {}
+    onLayoutChange: function() {},
+    cols: 12
   };
 
   constructor(props) {
@@ -35,7 +33,7 @@ class NoDraggingLayout extends React.PureComponent {
   generateLayout() {
     const p = this.props;
     return _.map(new Array(p.items), function(item, i) {
-      var y = _.result(p, "y") || Math.ceil(Math.random() * 4) + 1;
+      const y = _.result(p, "y") || Math.ceil(Math.random() * 4) + 1;
       return {
         x: (i * 2) % 12,
         y: Math.floor(i / 6) * y,
@@ -61,10 +59,4 @@ class NoDraggingLayout extends React.PureComponent {
       </ReactGridLayout>
     );
   }
-}
-
-module.exports = NoDraggingLayout;
-
-if (require.main === module) {
-  require("../test-hook.jsx")(module.exports);
 }
