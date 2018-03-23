@@ -184,7 +184,6 @@ class SlidePage extends React.PureComponent {
         <button className="add-zone" onClick={this.addZone}>
           Add zone
         </button>
-        <button onDoubleClick={this.onDoubleClick}>Add content</button>
       </div>
     );
   }
