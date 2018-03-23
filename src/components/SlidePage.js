@@ -92,7 +92,7 @@ class SlidePage extends React.PureComponent {
   /**
    * Calls when a zone is double-clicked
    */
-  onDoubleClick = (event, index) => {
+  onDoubleClick = index => {
     let img = document.createElement("img");
     img.src = cat; // imported from Assets folder
     img.className = "zone-content";
@@ -156,11 +156,11 @@ class SlidePage extends React.PureComponent {
     }
   };
 
-  removeZone = (event, index) => {
+  removeZone = index => {
     let layout = this.state.layout;
     let cols = this.state.cols;
     let numZones = this.state.numZones;
-    console.log(event.currentTarget);
+
     // Remove the zone at the given index
     layout.splice(index, 1);
     this.setState({
