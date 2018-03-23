@@ -5,8 +5,3 @@
   transform: scale(1);
   transform-origin: top left;
 }
-
-.content-item {
-  height: auto;
-  width: 100%;
-}

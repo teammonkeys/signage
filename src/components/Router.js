@@ -11,7 +11,8 @@ const Router = () => (
   <BrowserRouter>
     <Switch>
       <Route exact path="/" component={Login} />
-      <Route path="/main" component={SlidePage} />
+      <Route path="/slides" component={SlidePage} />
+      <Route path="/test" component={AddRemoveLayout} />
     </Switch>
   </BrowserRouter>
 );

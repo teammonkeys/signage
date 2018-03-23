@@ -7,110 +7,184 @@ import "../css/Slide.css";
 import "../../node_modules/react-grid-layout/css/styles.css";
 import "../../node_modules/react-resizable/css/styles.css";
 import cat from "../assets/cat.jpg";
+import ReactGridLayout from "react-grid-layout";
+const removeStyle = {
+  position: "absolute",
+  right: "2px",
+  top: 0,
+  cursor: "pointer"
+};
 
 class SlidePage extends React.PureComponent {
   state = {
-    currentZone: null,
-    currentContent: null,
     className: "layout",
-    zones: [0].map(function(i, key, list) {
+    // Start with one content zone loaded
+    layout: [
+      {
+        i: "zone0",
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2,
+        content: null
+      }
+    ],
+    /*
+    layout: [{}].map(function(i, key, list) {
       return {
         i: i.toString(),
         x: i * 2,
         y: 0,
         w: 2,
-        h: 6,
-        add: i === (list.length - 1).toString()
+        h: 2,
+        content: null
       };
     }),
-    newCounter: 1,
-    rowHeight: 15,
+    */
+    rowHeight: 50,
     cols: 12,
     width: 800,
-    autoSize: false,
+    autoSize: true,
     compactType: null,
-    newCounter: 0
+    preventCollision: true,
+    margin: [0, 0],
+    numZones: 1,
+    // A useless value. Used to overcome a bug in the module.
+    dummyCounter: 0
   };
 
-  componentDidMount() {
-    this.setState({ layout: this.generateLayout() });
-    console.log("Double click to put a cat in the zone.");
-  }
-
-  generateLayout() {
-    const s = this.state;
-    return _.map(new Array(s.zones), function(item, i) {
-      const y = _.result(s, "y") || Math.ceil(Math.random() * 4) + 1;
-      return {
-        x: (i * 2) % 12,
-        y: Math.floor(i / 6) * y,
-        w: 2,
-        h: y,
-        i: i.toString()
-      };
-    });
-  }
-
-  generateZones = (zones, handleClick) => {
-    return _.map(_.range(zones.length), function(i) {
-      return (
-        <div key={i} w={2} h={2}>
-          <Zone key={i} index={i} content={null} handleClick={handleClick} />
+  /**
+   * Generate a div for each zone in the layout.
+   * A button in the top-right corner
+   */
+  generateZones = layout => {
+    let zones = [];
+    let content;
+    layout.map((item, index) => {
+      zones.push(
+        <div key={index} index={index} data-grid={layout[index]}>
+          <Zone
+            key={index}
+            index={index}
+            content={this.state.layout[index].content}
+            onDoubleClick={this.onDoubleClick}
+          />
+          <span
+            style={removeStyle}
+            className="remove-button"
+            onClick={() => this.removeZone(index)}
+          >
+            x
+          </span>
         </div>
       );
     });
+    return zones;
   };
 
+  /**
+   * Calls when the layout of zones has changed
+   */
   onLayoutChange = layout => {
-    // console.log("dook");
+    // console.log("Layout changed");
   };
 
-  handleClick = event => {
-    const img = document.createElement("img");
+  /**
+   * Calls when a zone is double-clicked
+   */
+  onDoubleClick = (event, index) => {
+    let img = document.createElement("img");
     img.src = cat; // imported from Assets folder
     img.className = "zone-content";
-    const zone = event.currentTarget;
+    let layout = this.state.layout;
+    layout[index].content = cat;
+    this.setState({
+      layout,
+      // Incremented to overcome a bug in the module
+      dummyCounter: this.state.dummyCounter + 1
+    });
+    /*
     if (zone.hasChildNodes()) {
       alert("You already have a cat. Don't be greedy!");
     } else {
       zone.appendChild(img);
     }
+    */
   };
 
+  /**
+   * Add a new content zone to the layout (the array of
+   * content zones) stored in state.
+   */
   addZone = () => {
-    let newZone = []; // Initialize an array for a new zone
-    let zones = this.state.zones; // Save the current array of zones
-    newZone = {
-      // Set the label for the new zone based on the counter
-      i: "n" + this.state.newCounter, //
+    let layout = this.state.layout;
+    let cols = this.state.cols;
+    let numZones = this.state.numZones;
 
-      // If all columns are full, put the new zone at the bottom...
-      // ...otherwise, put it to the right of the last one
-      x: (this.state.zones.length * 2) % (this.state.cols || 12),
+    // Prevent the addition of new zones when the screen is full
+    if (numZones >= cols * this.state.maxRows / 2) {
+      alert("No more room!");
+    } else {
+      // Create an object to contain a new zone
+      let newZone = {};
 
-      // Always put the new zone at the bottom
-      y: Infinity,
+      // Set the values of the new zone
+      newZone = {
+        // Give the zone a unique descriptive name
+        i: "zone" + numZones,
 
-      w: 2, // width of 2 grid units
-      h: 2 // height of 2 grid units
-    };
-    // Add the new zone to the copy of our current zones
-    zones.push(newZone);
-    // Update the state with the new array of zones
-    this.setState({ zones, newCounter: this.state.newCounter + 1 });
+        // If all columns are full, put the new zone at the bottom...
+        // ...otherwise, put it to the right of the last one
+        x: (numZones * 2) % cols,
+
+        // If row is filled, put new zone on the next row.
+        y: Math.floor(numZones / (cols / 2)) * 2,
+
+        // Width and height are in grid units, not pixels
+        w: 2,
+        h: 2,
+
+        // Every zone starts without a content item assigned
+        content: null
+      };
+
+      // Add the new zone to the copy of our current zones
+      layout.push(newZone);
+
+      // Update the state with the new array of zones
+      this.setState({ layout, numZones: this.state.numZones + 1 });
+    }
+  };
+
+  removeZone = (event, index) => {
+    let layout = this.state.layout;
+    let cols = this.state.cols;
+    let numZones = this.state.numZones;
+    console.log(event.currentTarget);
+    // Remove the zone at the given index
+    layout.splice(index, 1);
+    this.setState({
+      layout,
+      numZones: this.state.numZones - 1
+    });
   };
 
   render() {
+    let layout = this.state.layout;
+    if (layout === null) return null;
     return (
-      <div className="slide">
-        <button onClick={this.addZone}>Add Zone</button>
-        <Slide
-          generateZones={this.generateZones}
-          onLayoutChange={this.onLayoutChange}
-          handleClick={this.handleClick}
-          layout={this.state.zones}
-          {...this.state}
-        />
+      <div className="slide-page">
+        <div className="slide">
+          <Slide
+            generateZones={this.generateZones}
+            onLayoutChange={this.onLayoutChange}
+            {...this.state}
+          />
+        </div>
+        <button className="add-zone" onClick={this.addZone}>
+          Add zone
+        </button>
+        <button onDoubleClick={this.onDoubleClick}>Add content</button>
       </div>
     );
   }

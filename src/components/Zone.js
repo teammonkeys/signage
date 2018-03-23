@@ -9,8 +9,10 @@ class Zone extends React.Component {
       <div
         className="zone"
         key={this.props.index}
-        onDoubleClick={this.props.handleClick}
-      />
+        onDoubleClick={() => this.props.onDoubleClick(this.props.index)}
+      >
+        <img className="zone-content" src={this.props.content} />{" "}
+      </div>
     );
   }
 }
