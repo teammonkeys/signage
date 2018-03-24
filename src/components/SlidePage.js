@@ -1,17 +1,21 @@
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 import _ from "lodash";
+import Zone from "./Zone";
 import "../css/SlidePage.css";
+import cat from "../assets/cat.jpg";
 
 /** True immediately after adding or removing a zone, and false otherwise. */
 var isAddingOrRemoving;
+/** A copy of the ReactGridLayout object that contains our zones */
+var RGL;
 
 /** This page allows the editing of a slide's layout and settings. */
 class SlidePage extends React.Component {
   state = {
     layout: [
       {
-        i: "n" + 0,
+        i: "z" + 0,
         x: 0,
         y: 0,
         w: 80,
@@ -19,55 +23,61 @@ class SlidePage extends React.Component {
         content: null
       }
     ],
-    add: 0, //i === (list.length - 1).toString(),
     newCounter: 1, // Increments when zones are added
     cols: 800, // Columns in the layout
-    width: 800, // Width of the layout
-    maxRows: 450, // Defines the bottom of the layout
-    compactType: null, // Defines gravity: horizontal (leftward), vertical (upward), or null
+    /** Width of the layout */
+    width: 800,
+    /** Defines the bottom of the layout */
+    maxRows: 450,
+    /** Defines gravity: horizontal (leftward), vertical (upward), or null */
+    compactType: null,
     preventCollision: true,
     margin: [0, 0],
     numZones: 1,
     autoSize: false,
     rowHeight: 1,
-    RGL: null // The ReactGridLayout object that contains our zones
+    content: []
   };
 
   onAddItem = this.onAddItem.bind(this);
   onLayoutChange = this.onLayoutChange.bind(this);
+  // onDoubleClick = this.onDoubleClick.bind(this);
+  //onDoubleClick = this.onDoubleClick.bind(this);
 
   componentDidMount() {
-    this.setState({ RGL: this.RGL });
+    RGL = this.RGL;
   }
 
+  /**
+   * Syncs the layout in state with the layout of the RGL.
+   */
   onLayoutChange() {
-    if (this.RGL != undefined && !isAddingOrRemoving) {
-      this.setState({ layout: this.RGL.state.layout });
+    if (RGL != undefined && !isAddingOrRemoving) {
+      this.setState({ layout: RGL.state.layout });
     }
     isAddingOrRemoving = false;
   }
 
-  createElement(el) {
+  createElement(zone) {
     const removeStyle = {
       position: "absolute",
-      right: "2px",
+      right: "1px",
       top: 0,
       cursor: "pointer"
     };
-    const i = el.add ? "+" : el.i;
+    const i = zone.add ? "+" : zone.i;
+    let index = i[i.length - 1];
     return (
-      <div key={i} data-grid={el}>
-        {el.add ? (
-          <span
-            className="add text"
-            onClick={this.onAddItem}
-            title="You can add an item by clicking here, too."
-          >
-            Add +
-          </span>
-        ) : (
-          <span className="text">{i}</span>
-        )}
+      <div key={i} data-grid={zone}>
+        <Zone
+          className="zone"
+          key={i}
+          index={index}
+          content={this.state.content[index]}
+          onDoubleClick={this.onDoubleClick}
+        />
+
+        <span className="text">{index}</span>
         <span
           className="remove"
           style={removeStyle}
@@ -81,12 +91,10 @@ class SlidePage extends React.Component {
 
   onAddItem() {
     isAddingOrRemoving = true;
-    console.log(isAddingOrRemoving);
-    //console.log(this.state.layout);
     this.setState({
-      // Add a new item. It must have a unique key!
+      // Add a new zone with a unique key.
       layout: this.state.layout.concat({
-        i: "n" + this.state.newCounter,
+        i: "z" + this.state.newCounter,
         x: 0,
         y: 0,
         w: 80,
@@ -102,28 +110,29 @@ class SlidePage extends React.Component {
     this.setState({ layout: _.reject(this.state.layout, { i: i }) });
   }
 
+  onDoubleClick = index => {
+    let content = this.state.content;
+    content[index] = cat;
+    console.log(index);
+    this.setState({ content });
+    console.log(this.state.content[index]);
+  };
+
   render() {
     return (
       <div>
+        <div className="slide">
+          <ReactGridLayout
+            ref={RGL => {
+              this.RGL = RGL;
+            }}
+            onLayoutChange={this.onLayoutChange}
+            {...this.state}
+          >
+            {_.map(this.state.layout, zone => this.createElement(zone))}
+          </ReactGridLayout>
+        </div>
         <button onClick={this.onAddItem}>Add Item</button>
-        <ReactGridLayout
-          ref={RGL => {
-            this.RGL = RGL;
-          }}
-          layout={this.state.layout}
-          onLayoutChange={this.onLayoutChange}
-          rowHeight={1}
-          cols={800}
-          width={800}
-          maxRows={450}
-          compactType={null}
-          preventCollision={true}
-          margin={[0, 0]}
-          autoSize={false}
-          onLayoutChange={this.onLayoutChange}
-        >
-          {_.map(this.state.layout, el => this.createElement(el))}
-        </ReactGridLayout>
       </div>
     );
   }

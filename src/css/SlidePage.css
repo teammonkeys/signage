@@ -1,6 +1,6 @@
 .zone {
-  background-color: lightgray;
   flex: 1;
+  z-index: 100;
 }
 
 .zone-content {
@@ -20,6 +20,10 @@
   width: 800px;
   transform: scale(1);
   transform-origin: top left;
+}
+
+.text {
+  color: transparent;
 }
 
 .react-grid-item {
