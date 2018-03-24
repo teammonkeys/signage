@@ -2,11 +2,19 @@ import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
 class Slide extends React.Component {
+  componentDidMount() {
+    console.log(this.gridLayout);
+  }
   render() {
     return (
-      <ReactGridLayout {...this.props}>
-        {this.props.generateZones(this.props.layout, this.props.handleClick)}
-      </ReactGridLayout>
+      <div>
+        <ReactGridLayout
+          ref={gridLayout => (this.gridLayout = gridLayout)}
+          {...this.props}
+        >
+          {this.props.generateZones(this.props.layout, this.props.handleClick)}
+        </ReactGridLayout>
+      </div>
     );
   }
 }

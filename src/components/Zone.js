@@ -1,5 +1,4 @@
 import React from "react";
-import "../css/Zone.css";
 import GridItem from "react-grid-layout";
 import cat from "../assets/cat.jpg";
 
@@ -9,6 +8,7 @@ class Zone extends React.Component {
       <div
         className="zone"
         key={this.props.index}
+        layout={this.props.layout}
         onDoubleClick={() => this.props.onDoubleClick(this.props.index)}
       >
         <img className="zone-content" src={this.props.content} />{" "}

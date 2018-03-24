@@ -4,15 +4,13 @@ import Login from "./Login";
 import App from "./App";
 import SlideshowPage from "./SlideshowPage";
 import SlidePage from "./SlidePage";
-import SlidePageOld from "./SlidePageOld";
-import AddRemoveLayout from "./AddRemoveLayout";
+import LocalStorageDemo from "./LocalStorageDemo";
 
 const Router = () => (
   <BrowserRouter>
     <Switch>
       <Route exact path="/" component={Login} />
       <Route path="/slides" component={SlidePage} />
-      <Route path="/test" component={AddRemoveLayout} />
     </Switch>
   </BrowserRouter>
 );

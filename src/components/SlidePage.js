@@ -1,192 +1,131 @@
 import React from "react";
-import _ from "lodash";
-import RGL, { WidthProvider } from "react-grid-layout";
-import Slide from "./Slide";
-import Zone from "./Zone";
-import "../css/Slide.css";
-import "../../node_modules/react-grid-layout/css/styles.css";
-import "../../node_modules/react-resizable/css/styles.css";
-import cat from "../assets/cat.jpg";
 import ReactGridLayout from "react-grid-layout";
-const removeStyle = {
-  position: "absolute",
-  right: "2px",
-  top: 0,
-  cursor: "pointer"
-};
+import _ from "lodash";
+import "../css/SlidePage.css";
 
-class SlidePage extends React.PureComponent {
+/** True immediately after adding or removing a zone, and false otherwise. */
+var isAddingOrRemoving;
+
+/** This page allows the editing of a slide's layout and settings. */
+class SlidePage extends React.Component {
   state = {
-    className: "layout",
-    // Start with one content zone loaded
     layout: [
       {
-        i: "zone0",
+        i: "n" + 0,
         x: 0,
         y: 0,
-        w: 2,
-        h: 2,
+        w: 80,
+        h: 80,
         content: null
       }
     ],
-    /*
-    layout: [{}].map(function(i, key, list) {
-      return {
-        i: i.toString(),
-        x: i * 2,
-        y: 0,
-        w: 2,
-        h: 2,
-        content: null
-      };
-    }),
-    */
-    rowHeight: 50,
-    cols: 12,
-    width: 800,
-    autoSize: true,
-    compactType: null,
+    add: 0, //i === (list.length - 1).toString(),
+    newCounter: 1, // Increments when zones are added
+    cols: 800, // Columns in the layout
+    width: 800, // Width of the layout
+    maxRows: 450, // Defines the bottom of the layout
+    compactType: null, // Defines gravity: horizontal (leftward), vertical (upward), or null
     preventCollision: true,
     margin: [0, 0],
     numZones: 1,
-    // A useless value. Used to overcome a bug in the module.
-    dummyCounter: 0
+    autoSize: false,
+    rowHeight: 1,
+    RGL: null // The ReactGridLayout object that contains our zones
   };
 
-  /**
-   * Generate a div for each zone in the layout.
-   * A button in the top-right corner
-   */
-  generateZones = layout => {
-    let zones = [];
-    let content;
-    layout.map((item, index) => {
-      zones.push(
-        <div key={index} index={index} data-grid={layout[index]}>
-          <Zone
-            key={index}
-            index={index}
-            content={this.state.layout[index].content}
-            onDoubleClick={this.onDoubleClick}
-          />
+  onAddItem = this.onAddItem.bind(this);
+  onLayoutChange = this.onLayoutChange.bind(this);
+
+  componentDidMount() {
+    this.setState({ RGL: this.RGL });
+  }
+
+  onLayoutChange() {
+    if (this.RGL != undefined && !isAddingOrRemoving) {
+      this.setState({ layout: this.RGL.state.layout });
+    }
+    isAddingOrRemoving = false;
+  }
+
+  createElement(el) {
+    const removeStyle = {
+      position: "absolute",
+      right: "2px",
+      top: 0,
+      cursor: "pointer"
+    };
+    const i = el.add ? "+" : el.i;
+    return (
+      <div key={i} data-grid={el}>
+        {el.add ? (
           <span
-            style={removeStyle}
-            className="remove-button"
-            onClick={() => this.removeZone(index)}
+            className="add text"
+            onClick={this.onAddItem}
+            title="You can add an item by clicking here, too."
           >
-            x
+            Add +
           </span>
-        </div>
-      );
-    });
-    return zones;
-  };
+        ) : (
+          <span className="text">{i}</span>
+        )}
+        <span
+          className="remove"
+          style={removeStyle}
+          onClick={this.onRemoveItem.bind(this, i)}
+        >
+          x
+        </span>
+      </div>
+    );
+  }
 
-  /**
-   * Calls when the layout of zones has changed
-   */
-  onLayoutChange = layout => {
-    // console.log("Layout changed");
-  };
-
-  /**
-   * Calls when a zone is double-clicked
-   */
-  onDoubleClick = index => {
-    let img = document.createElement("img");
-    img.src = cat; // imported from Assets folder
-    img.className = "zone-content";
-    let layout = this.state.layout;
-    layout[index].content = cat;
+  onAddItem() {
+    isAddingOrRemoving = true;
+    console.log(isAddingOrRemoving);
+    //console.log(this.state.layout);
     this.setState({
-      layout,
-      // Incremented to overcome a bug in the module
-      dummyCounter: this.state.dummyCounter + 1
+      // Add a new item. It must have a unique key!
+      layout: this.state.layout.concat({
+        i: "n" + this.state.newCounter,
+        x: 0,
+        y: 0,
+        w: 80,
+        h: 80
+      }),
+      // Increment the counter to ensure key is always unique.
+      newCounter: this.state.newCounter + 1
     });
-    /*
-    if (zone.hasChildNodes()) {
-      alert("You already have a cat. Don't be greedy!");
-    } else {
-      zone.appendChild(img);
-    }
-    */
-  };
+  }
 
-  /**
-   * Add a new content zone to the layout (the array of
-   * content zones) stored in state.
-   */
-  addZone = () => {
-    let layout = this.state.layout;
-    let cols = this.state.cols;
-    let numZones = this.state.numZones;
-
-    // Prevent the addition of new zones when the screen is full
-    if (numZones >= cols * this.state.maxRows / 2) {
-      alert("No more room!");
-    } else {
-      // Create an object to contain a new zone
-      let newZone = {};
-
-      // Set the values of the new zone
-      newZone = {
-        // Give the zone a unique descriptive name
-        i: "zone" + numZones,
-
-        // If all columns are full, put the new zone at the bottom...
-        // ...otherwise, put it to the right of the last one
-        x: (numZones * 2) % cols,
-
-        // If row is filled, put new zone on the next row.
-        y: Math.floor(numZones / (cols / 2)) * 2,
-
-        // Width and height are in grid units, not pixels
-        w: 2,
-        h: 2,
-
-        // Every zone starts without a content item assigned
-        content: null
-      };
-
-      // Add the new zone to the copy of our current zones
-      layout.push(newZone);
-
-      // Update the state with the new array of zones
-      this.setState({ layout, numZones: this.state.numZones + 1 });
-    }
-  };
-
-  removeZone = index => {
-    let layout = this.state.layout;
-    let cols = this.state.cols;
-    let numZones = this.state.numZones;
-
-    // Remove the zone at the given index
-    layout.splice(index, 1);
-    this.setState({
-      layout,
-      numZones: this.state.numZones - 1
-    });
-  };
+  onRemoveItem(i) {
+    isAddingOrRemoving = true;
+    this.setState({ layout: _.reject(this.state.layout, { i: i }) });
+  }
 
   render() {
-    let layout = this.state.layout;
-    if (layout === null) return null;
     return (
-      <div className="slide-page">
-        <div className="slide">
-          <Slide
-            generateZones={this.generateZones}
-            onLayoutChange={this.onLayoutChange}
-            {...this.state}
-          />
-        </div>
-        <button className="add-zone" onClick={this.addZone}>
-          Add zone
-        </button>
+      <div>
+        <button onClick={this.onAddItem}>Add Item</button>
+        <ReactGridLayout
+          ref={RGL => {
+            this.RGL = RGL;
+          }}
+          layout={this.state.layout}
+          onLayoutChange={this.onLayoutChange}
+          rowHeight={1}
+          cols={800}
+          width={800}
+          maxRows={450}
+          compactType={null}
+          preventCollision={true}
+          margin={[0, 0]}
+          autoSize={false}
+          onLayoutChange={this.onLayoutChange}
+        >
+          {_.map(this.state.layout, el => this.createElement(el))}
+        </ReactGridLayout>
       </div>
     );
   }
 }
-
 export default SlidePage;

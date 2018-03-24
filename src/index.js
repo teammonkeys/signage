@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Router from "./components/Router";
-import "./css/App.css";
 import App from "./components/App";
 import { SPFetchClient } from "@pnp/nodejs";
 import { sp } from "@pnp/sp";
