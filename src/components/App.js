@@ -174,16 +174,22 @@ class App extends React.Component {
     }
     if (this.state.currentPage !== "Main") {
       buttons.push(
-        <Button className="back" key={0} onClick={this.backToMainPage}>
+        <Button className="back" key={0} onClick={() => this.setPage("Main")}>
           Back to main page
+        </Button>
+      );
+    } else {
+      buttons.push(
+        <Button
+          className="logout"
+          key={0}
+          onClick={() => this.props.history.push(`/`)}
+        >
+          Log out
         </Button>
       );
     }
     return buttons;
-  };
-
-  backToMainPage = () => {
-    this.setState({ currentPage: "Main" });
   };
 
   setPage = page => {
