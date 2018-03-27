@@ -16,7 +16,7 @@ class LoginPage extends React.Component {
     const username = this.usernameInput.value;
     const password = this.passwordInput.value;
     if (username === "admin" && password === "admin") {
-      this.props.history.push(`/editslide`);
+      this.props.history.push(`/main`);
     } else {
       alert("Invalid. Username/Password is admin/admin");
     }

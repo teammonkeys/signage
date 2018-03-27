@@ -1,0 +1,11 @@
+.items {
+  width: 800px;
+  height: 450px;
+  background-color: whitesmoke;
+  padding-top: 2%;
+  padding-left: 2.5%;
+}
+
+.wrapper {
+  margin: 4%;
+}

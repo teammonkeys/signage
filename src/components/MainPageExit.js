@@ -5,8 +5,8 @@ import "../css/MainPageItem.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.css";
 
 class MainPageItem extends React.Component {
-  setPage = () => {
-    this.props.setPage(this.props.page);
+  exit = () => {
+    alert("You cannot exit. You are trapped here forever.");
   };
 
   render() {
@@ -16,7 +16,7 @@ class MainPageItem extends React.Component {
           className="item"
           src={this.props.icon}
           alt={this.props.page}
-          onClick={this.setPage}
+          onClick={this.exit}
         >
           <h3>{this.props.page}</h3>
         </Thumbnail>

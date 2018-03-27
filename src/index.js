@@ -29,9 +29,13 @@ start(
 );
 
 // Return all SharePoint files as a Promise
-/** Temporarily disabled **
+
+/* DISABLED ///
+
 getAllFiles();
+
 */
+
 // END CODE //
 
 async function getAllFiles() {

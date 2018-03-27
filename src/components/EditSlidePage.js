@@ -1,15 +1,13 @@
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 import _ from "lodash";
-import Zone from "./Zone";
 import "../css/SlidePage.css";
-import cat from "../assets/cat.jpg";
 
 class EditSlidePage extends React.Component {
   render() {
     return (
       <div>
-        <div className="slide">
+        <div>
           <ReactGridLayout
             ref={RGL => {
               this.RGL = RGL;
@@ -17,7 +15,9 @@ class EditSlidePage extends React.Component {
             onLayoutChange={() => this.props.onLayoutChange(this.RGL)}
             {...this.props}
           >
-            {_.map(this.props.layout, zone => this.props.createElement(zone))}
+            {_.map(this.props.layout, newZone =>
+              this.props.createElement(newZone)
+            )}
           </ReactGridLayout>
         </div>
         <button onClick={this.props.addZone}>Add Item</button>
