@@ -5,20 +5,7 @@ import { SPFetchClient } from "@pnp/nodejs";
 import { sp } from "@pnp/sp";
 import $ from "jquery";
 
-const validFileTypes = [
-  "doc",
-  "docx",
-  "gif",
-  "jpg",
-  "jpeg",
-  "png",
-  "ppt",
-  "pptx"
-];
 // EXECUTED CODE //
-
-// Load the React Router, which sends the user to different pages in the app
-ReactDOM.render(<Router />, document.getElementById("root"));
 
 // Initialize the SharePoint fetcher with the values from the SharePoint add-in
 start(
@@ -27,11 +14,13 @@ start(
   "77IjS/vtrFuYXk2mq0XwA5AeX2Vy7ze0OvnikvWkfb4=",
   "c437039a-84e9-47f2-ac34-b703bb7fcc59"
 );
-
 // Return all SharePoint files as a Promise
-/** Temporarily disabled **
-getAllFiles();
-*/
+
+/////getAllFiles();
+
+// Load the React Router, which sends the user to different pages in the app
+ReactDOM.render(<Router />, document.getElementById("root"));
+
 // END CODE //
 
 async function getAllFiles() {
@@ -67,7 +56,7 @@ async function getAllFiles() {
  * @param filesArray The raw array of files to be converted
  */
 function getFilesFromArray(fileArray) {
-  let file, name, filetype, url;
+  let file, name, type, url;
   let files = [];
   let rawFiles = [];
   // Convert all JSON files fetched from SharePoint into arrays
@@ -83,11 +72,9 @@ function getFilesFromArray(fileArray) {
   }
   rawFiles.forEach(element => {
     name = getFileName(element);
-    filetype = getFileType(name);
+    type = getFileType(name);
     url = getFileUrl(element);
-    if (validFileTypes.includes(filetype)) {
-      files.push(new File(name, filetype, url));
-    }
+    files.push(new File(name, type, url));
   });
   return files;
 }
@@ -236,9 +223,9 @@ function getFileType(name) {
  * array format
  */
 class File {
-  constructor(name, filetype, url) {
+  constructor(name, type, url) {
     this.name = name;
-    this.filetype = getFileType(name);
+    this.type = getFileType(name);
     this.url = url;
   }
 }

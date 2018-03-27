@@ -10,13 +10,13 @@ import {
 import "bootstrap/dist/css/bootstrap.css";
 import "../css/Login.css";
 
-class Login extends React.Component {
+class LoginPage extends React.Component {
   validateFields = event => {
     event.preventDefault();
     const username = this.usernameInput.value;
     const password = this.passwordInput.value;
     if (username === "admin" && password === "admin") {
-      this.props.history.push(`/slides`);
+      this.props.history.push(`/editslide`);
     } else {
       alert("Invalid. Username/Password is admin/admin");
     }
@@ -61,7 +61,7 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+export default LoginPage;
 
 /*
   

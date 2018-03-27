@@ -1,0 +1,9 @@
+.wrapper {
+  background-color: whitesmoke;
+}
+
+.img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
