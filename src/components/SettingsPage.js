@@ -2,7 +2,7 @@ import React from "react";
 
 class SettingsPage extends React.Component {
   render() {
-    return null;
+    return <div className="items" />;
   }
 }
 export default SettingsPage;

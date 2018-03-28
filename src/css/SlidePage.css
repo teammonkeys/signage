@@ -20,6 +20,8 @@
   width: 800px;
   transform: scale(1);
   transform-origin: top left;
+  margin: 0;
+  padding: 0;
 }
 
 .text {

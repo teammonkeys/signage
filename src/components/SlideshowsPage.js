@@ -2,7 +2,7 @@ import React from "react";
 
 class SlideshowsPage extends React.Component {
   render() {
-    return null;
+    return <div className="items" />;
   }
 }
 
