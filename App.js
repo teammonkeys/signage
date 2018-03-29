@@ -151,11 +151,7 @@ class App extends React.Component {
     } else if (this.state.currentPage === "Settings") {
       return <SettingsPage {...this.state} />;
     } else if (this.state.currentPage === "Help") {
-      return (
-        <div className="items">
-          <HelpPage {...this.state} />
-        </div>
-      );
+      return <HelpPage {...this.state} />;
     } else {
       return (
         <div className="items">
