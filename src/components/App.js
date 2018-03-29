@@ -128,6 +128,10 @@ class App extends React.Component {
     this.setState({ content });
   };
 
+  setPage = page => {
+    this.setState({ currentPage: page });
+  };
+
   renderPage = () => {
     if (this.state.currentPage === "Slides") {
       return (
@@ -150,14 +154,12 @@ class App extends React.Component {
       return <HelpPage {...this.state} />;
     } else {
       return (
-        <div>
-          <div>
-            <MainPage
-              pages={this.state.pages}
-              icons={this.state.icons}
-              setPage={this.setPage}
-            />
-          </div>
+        <div className="items">
+          <MainPage
+            pages={this.state.pages}
+            icons={this.state.icons}
+            setPage={this.setPage}
+          />
         </div>
       );
     }
@@ -192,14 +194,10 @@ class App extends React.Component {
     return buttons;
   };
 
-  setPage = page => {
-    this.setState({ currentPage: page });
-  };
-
   render() {
     return (
-      <div className="wrapper">
-        <div className="items">{this.renderPage()}</div>
+      <div>
+        {this.renderPage()}
         {this.renderButtons()}
       </div>
     );

@@ -30,11 +30,7 @@ start(
 
 // Return all SharePoint files as a Promise
 
-/* DISABLED ///
-
 getAllFiles();
-
-*/
 
 // END CODE //
 
