@@ -13,7 +13,7 @@
     "bootstrap": "^3.3.7",
     "jquery": "^3.3.1",
     "lodash": "^4.17.5",
-    "npm": "^5.7.1",
+    "npm": "^5.8.0",
     "office2pdf": "0.0.2",
     "react": "^16.3.0-alpha.1",
     "react-bootstrap": "^0.32.1",
@@ -23,6 +23,8 @@
     "react-pdf-pages": "^0.1.8",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1",
+    "react-scroll-box": "^0.3.5",
+    "react-scrollbar": "^0.5.4",
     "react-zoom": "^0.3.1",
     "uuid": "^3.2.1"
   },

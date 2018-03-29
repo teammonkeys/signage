@@ -4,6 +4,10 @@ import _ from "lodash";
 import "../css/SlidePage.css";
 
 class EditSlidePage extends React.Component {
+  onLayoutChange = () => {
+    this.props.onLayoutChange(this.RGL);
+  };
+
   render() {
     return (
       <div className="slide">
@@ -11,7 +15,7 @@ class EditSlidePage extends React.Component {
           ref={RGL => {
             this.RGL = RGL;
           }}
-          onLayoutChange={() => this.props.onLayoutChange(this.RGL)}
+          onLayoutChange={this.onLayoutChange}
           {...this.props}
         >
           {_.map(this.props.layout, newZone =>
