@@ -1,13 +1,14 @@
 import React from "react";
-import "../css/SlidePage.css";
+import "../css/SlidesPage.css";
 
 class Zone extends React.Component {
+  setContent = () => {
+    this.props.setContent(this.props.index);
+  };
+
   render() {
     return (
-      <div
-        className="zone"
-        onDoubleClick={() => this.props.assignContent(this.props.index)}
-      >
+      <div className="zone" onDoubleClick={this.setContent}>
         <img className="zone-content" src={this.props.content} alt={""} />
       </div>
     );

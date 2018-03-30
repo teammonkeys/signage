@@ -1,3 +1,23 @@
+.slidesPage {
+  height: 450px;
+  padding-left: 50px;
+  padding-top: 25px;
+}
+
+.slidesList {
+  width: 400px;
+  float: left;
+}
+
+.slidePreview {
+  transform: scale(0.5);
+  transform-origin: top left;
+  float: right;
+  border-width: 3px;
+  border-style: groove;
+  margin-right: 75px;
+}
+
 .zone {
   flex: 1;
   z-index: 100;

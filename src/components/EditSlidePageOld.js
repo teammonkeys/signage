@@ -2,7 +2,7 @@ import React from "react";
 import ReactGridLayout from "react-grid-layout";
 import _ from "lodash";
 import Zone from "./Zone";
-import "../css/SlidePage.css";
+import "../css/SlidesPage.css";
 import cat from "../assets/cat.jpg";
 
 /** True immediately after adding or removing a zone, and false otherwise. */

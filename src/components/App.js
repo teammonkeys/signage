@@ -23,16 +23,46 @@ import { Document, Page } from "react-pdf/dist/entry.webpack";
 class App extends React.Component {
   state = {
     /// SLIDE STATE ///
-    layout: [
+    slides: [
       {
-        i: "z" + 0,
-        x: 0,
-        y: 0,
-        w: 80,
-        h: 80
+        name: "Slide 1",
+        index: 0,
+        layout: [
+          {
+            i: "0" + "-" + 0,
+            x: 0,
+            y: 0,
+            w: 80,
+            h: 80
+          },
+          {
+            i: "0" + "-" + 1,
+            x: 160,
+            y: 0,
+            w: 80,
+            h: 80
+          }
+        ],
+        content: []
+      },
+      {
+        name: "Slide 2",
+        index: 1,
+        layout: [
+          {
+            i: "1" + "-" + 0,
+            x: 80,
+            y: 0,
+            w: 80,
+            h: 80
+          }
+        ],
+        content: []
       }
     ],
-    newCounter: 1, // Increments when zones are added
+    isEditing: false,
+    numSlides: 2,
+    currentSlide: null,
     cols: 800, // Columns in the layout
     /** Width of the layout */
     width: 800,
@@ -45,13 +75,25 @@ class App extends React.Component {
     numZones: 1,
     autoSize: false,
     rowHeight: 1,
-    content: [],
 
     /// PAGE STATE ///
-    pages: ["Play", "Slides", "Slideshows", "Settings", "Help", "Exit"],
+    pages: [
+      "Play",
+      "Slides",
+      "EditSlide",
+      "Slideshows",
+      "Settings",
+      "Help",
+      "Exit"
+    ],
     icons: [play, slides, slideshows, settings, help, exit],
     currentPage: "Main",
     pageHistory: ["Main"]
+  };
+
+  toggleIsEditing = () => {
+    const isEditing = this.state.isEditing;
+    this.setState({ isEditing: !isEditing });
   };
 
   createElement = zone => {
@@ -66,18 +108,19 @@ class App extends React.Component {
     const i = zone.i;
     // "i" has a 'z' in front of it to keep the key unique.
     // For the index, we only want the number.
-    const index = i[i.length - 1];
+    const slideIndex = i[0];
+    const zoneIndex = i[i.length - 1];
     return (
       <div key={i} data-grid={zone}>
         <Zone
           className="zone"
           key={i}
-          index={index}
-          content={this.state.content[index]}
-          assignContent={this.assignContent}
+          index={zoneIndex}
+          content={this.state.slides[slideIndex].content[zoneIndex]}
+          setContent={this.setContent}
         />
 
-        <span className="text">{index}</span>
+        <span className="text">{zoneIndex}</span>
         <span
           className="remove"
           style={removeStyle}
@@ -93,26 +136,32 @@ class App extends React.Component {
    * Syncs the layout in state with the layout of the RGL.
    */
   onLayoutChange = RGL => {
-    if (RGL !== undefined) {
-      // && !isAddingOrRemoving) {
-      this.setState({ layout: RGL });
+    if (RGL !== undefined && this.state.isEditing === true) {
+      let index = this.state.currentSlide.index;
+      let slides = this.state.slides;
+      slides[index].layout = RGL;
+      this.setState({ slides });
     }
   };
 
+  setCurrentSlide = index => {
+    this.setState({ currentSlide: this.state.slides[index] });
+  };
+
   /** Add a new zone to the slide. */
-  addZone = () => {
-    this.setState({
-      // Add a new zone with a unique key.
-      layout: this.state.layout.concat({
-        i: "z" + this.state.newCounter,
-        x: 0,
-        y: 0,
-        w: 80,
-        h: 80
-      }),
-      // Increment the counter to ensure key is always unique.
-      newCounter: this.state.newCounter + 1
-    });
+  addZone = index => {
+    const slides = this.state.slides;
+    slides[index].layout.concat({
+      i: slides.length + "-" + slides[index].layout.length,
+      x: 0,
+      y: 0,
+      w: 80,
+      h: 80
+    }),
+      this.setState({
+        slides
+        // Increment the counter to ensure key is always unique.
+      });
   };
 
   removeZone = i => {
@@ -121,11 +170,12 @@ class App extends React.Component {
     this.setState({ layout: _.reject(this.state.layout, { i: i }) });
   };
 
-  /** Assigns content to a zone on double click. */
-  assignContent = index => {
-    let content = this.state.content;
-    content[index] = cat;
-    this.setState({ content });
+  /** Assigns content to the current zone on double click. */
+  setContent = index => {
+    const slides = this.state.slides;
+    const currentSlide = this.state.currentSlide;
+    slides[currentSlide.index].content[index] = cat;
+    this.setState({ slides });
   };
 
   setPage = page => {
@@ -139,8 +189,10 @@ class App extends React.Component {
           createElement={this.createElement}
           addZone={this.addZone}
           removeZone={this.removeZone}
-          assignContent={this.assignContent}
+          setContent={this.setContent}
           onLayoutChange={this.onLayoutChange}
+          setCurrentSlide={this.setCurrentSlide}
+          toggleIsEditing={this.toggleIsEditing}
           {...this.state}
         />
       );
@@ -167,29 +219,38 @@ class App extends React.Component {
 
   renderButtons = () => {
     let buttons = [];
-    if (this.state.currentPage === "Slides") {
+    if (this.state.isEditing) {
       buttons.push(
-        <Button key={1} onClick={this.addZone}>
+        <Button
+          key={0}
+          onClick={() => this.addZone(this.state.currentSlide.index)}
+        >
           Add zone
         </Button>
       );
-    }
-    if (this.state.currentPage !== "Main") {
       buttons.push(
-        <Button className="back" key={0} onClick={() => this.setPage("Main")}>
-          Back to main page
+        <Button key={1} onClick={this.toggleIsEditing}>
+          Back to Slides Page
         </Button>
       );
     } else {
-      buttons.push(
-        <Button
-          className="logout"
-          key={0}
-          onClick={() => this.props.history.push(`/`)}
-        >
-          Log out
-        </Button>
-      );
+      if (this.state.currentPage !== "Main") {
+        buttons.push(
+          <Button className="back" key={2} onClick={() => this.setPage("Main")}>
+            Back to main page
+          </Button>
+        );
+      } else {
+        buttons.push(
+          <Button
+            className="logout"
+            key={3}
+            onClick={() => this.props.history.push(`/`)}
+          >
+            Log out
+          </Button>
+        );
+      }
     }
     return buttons;
   };
