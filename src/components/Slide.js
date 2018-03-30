@@ -9,6 +9,8 @@ class Slide extends React.Component {
   };
 
   render() {
+    console.log(this.props.index);
+    console.log(this.props.slides);
     return (
       <div className="slide">
         <ReactGridLayout

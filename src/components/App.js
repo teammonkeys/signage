@@ -105,11 +105,13 @@ class App extends React.Component {
       top: 0,
       cursor: "pointer"
     };
+    // The "i" value is the index of the slide and the index of the zone,
+    // separated by a dash.
     const i = zone.i;
-    // "i" has a 'z' in front of it to keep the key unique.
-    // For the index, we only want the number.
+    // For the slide index, we take the first character of the "i" value.
     const slideIndex = i[0];
-    const zoneIndex = i[i.length - 1];
+    // The zone index is the number after the dash.
+    const zoneIndex = i[2];
     return (
       <div key={i} data-grid={zone}>
         <Zone
@@ -124,7 +126,7 @@ class App extends React.Component {
         <span
           className="remove"
           style={removeStyle}
-          onClick={() => this.removeZone(i)}
+          onClick={() => this.removeZone(slideIndex, i)}
         >
           x
         </span>
@@ -151,23 +153,28 @@ class App extends React.Component {
   /** Add a new zone to the slide. */
   addZone = index => {
     const slides = this.state.slides;
-    slides[index].layout.concat({
-      i: slides.length + "-" + slides[index].layout.length,
+    const newLayout = slides[index].layout.concat({
+      // Set the "i" value. The first digit is the slide's index.
+      // The second digit is the number of zones in the layout.
+      i: index + "-" + slides[index].layout.length,
       x: 0,
       y: 0,
       w: 80,
       h: 80
-    }),
-      this.setState({
-        slides
-        // Increment the counter to ensure key is always unique.
-      });
+    });
+    slides[index].layout = newLayout;
+    this.setState({
+      slides
+    });
   };
 
-  removeZone = i => {
-    // Remove all elements (in this case one element) from the array of layouts
-    // whose "i" value matches the removed value's "i" value
-    this.setState({ layout: _.reject(this.state.layout, { i: i }) });
+  removeZone = (index, i) => {
+    const slides = this.state.slides;
+    const layout = slides[index].layout;
+    // Remove all elements (in this case one element) in the layout
+    // whose "i" value matches the removed element's "i" value
+    slides[index].layout = _.reject(layout, { i: i });
+    this.setState({ slides });
   };
 
   /** Assigns content to the current zone on double click. */
