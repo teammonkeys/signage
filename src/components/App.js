@@ -17,12 +17,12 @@ import slideshows from "../assets/icons/slideshows.png";
 import settings from "../assets/icons/settings.png";
 import help from "../assets/icons/help.png";
 import exit from "../assets/icons/exit.png";
-
+import { fetchSPFiles } from "../fetcher";
 import { Document, Page } from "react-pdf/dist/entry.webpack";
 
 class App extends React.Component {
   state = {
-    /// SLIDE STATE ///
+    /// EXAMPLE SLIDES ///
     slides: [
       {
         name: "Slide 1",
@@ -58,39 +58,63 @@ class App extends React.Component {
           }
         ],
         content: []
+      },
+      {
+        name: "Slide 3",
+        index: 2,
+        layout: [
+          {
+            i: "2" + "-" + 0,
+            x: 240,
+            y: 160,
+            w: 80,
+            h: 80
+          }
+        ],
+        content: []
       }
     ],
-    isEditing: false,
-    numSlides: 2,
-    currentSlide: null,
-    cols: 800, // Columns in the layout
-    /** Width of the layout */
-    width: 800,
-    /** Defines the bottom of the layout */
-    maxRows: 450,
-    /** Defines gravity: horizontal (leftward), vertical (upward), or null */
-    compactType: null,
-    preventCollision: true,
-    margin: [0, 0],
-    numZones: 1,
-    autoSize: false,
-    rowHeight: 1,
 
-    /// PAGE STATE ///
-    pages: [
-      "Play",
-      "Slides",
-      "EditSlide",
-      "Slideshows",
-      "Settings",
-      "Help",
-      "Exit"
-    ],
+    /// GENERAL STATE ///
+    pages: ["Play", "Slides", "Slideshows", "Settings", "Help", "Exit"],
     icons: [play, slides, slideshows, settings, help, exit],
-    currentPage: "Main",
-    pageHistory: ["Main"]
+    currentPage: "Main", // The current sub-page rendered in the main page
+    slideshows: [], // All saved slideshows
+    currentSlide: null, // The slide being viewed or edited
+    currentSlideshow: null, // The slideshow being viewed or edited
+    isEditing: false, // True when in slide editing mode
+    spFiles: [], // Metadata of all files in SharePoint
+
+    //// LAYOUT STATE ////
+    cols: 800, // Columns in the layout
+    width: 800, // Width of the layout
+    maxRows: 450, // Defines the bottom of the layout
+    rowHeight: 1, // Height of layout rows: equal to one pixel by default
+    compactType: null, // Defines zone gravity: null means no gravity
+    preventCollision: true, // Disallow zones from moving one another
+    margin: [0, 0], // The space between zones: none by default
+    autoSize: false // Whether zones resize to fit their content
   };
 
+  /** Fetch all SharePoint files and set the example slideshow */
+  componentDidMount = async () => {
+    this.state.slideshows = [
+      {
+        name: "Slideshow 1",
+        index: 0,
+        slides: [this.state.slides[0], this.state.slides[1]]
+      },
+      {
+        name: "Slideshow 2",
+        index: 1,
+        slides: [this.state.slides[2]]
+      }
+    ];
+    let files = await fetchSPFiles();
+    this.setState({ spFiles: files });
+  };
+
+  /** Toggle whether the app is in editing mode. */
   toggleIsEditing = () => {
     const isEditing = this.state.isEditing;
     this.setState({ isEditing: !isEditing });
@@ -126,7 +150,7 @@ class App extends React.Component {
         <span
           className="remove"
           style={removeStyle}
-          onClick={() => this.removeZone(slideIndex, i)}
+          onClick={() => this.removeZone(i)}
         >
           x
         </span>
@@ -150,30 +174,58 @@ class App extends React.Component {
     this.setState({ currentSlide: this.state.slides[index] });
   };
 
-  /** Add a new zone to the slide. */
-  addZone = index => {
+  setCurrentSlideshow = index => {
+    this.setState({
+      currentSlideshow: this.state.slideshows[index],
+      currentSlide: null
+    });
+  };
+
+  addSlide = () => {
+    const slides = this.state.slides.concat({
+      // The user-facing name is one higher than the index.
+      name: "Slide " + slides.length + 1,
+      index: slides.length,
+      layout: []
+    });
+  };
+
+  addSlideshow = () => {
+    const slideshows = this.state.slideshows.concat({
+      // The user-facing name is one higher than the index.
+      name: "Slideshow " + slides.length + 1,
+      index: slides.length,
+      layout: []
+    });
+  };
+
+  /** Add a new zone to the current slide. */
+  addZone = () => {
     const slides = this.state.slides;
-    const newLayout = slides[index].layout.concat({
+    const curIndex = this.state.currentSlide.index;
+    const curLayout = slides[curIndex].layout.concat({
       // Set the "i" value. The first digit is the slide's index.
       // The second digit is the number of zones in the layout.
-      i: index + "-" + slides[index].layout.length,
+      i: curIndex + "-" + slides[curIndex].layout.length,
       x: 0,
       y: 0,
       w: 80,
       h: 80
     });
-    slides[index].layout = newLayout;
+    slides[curIndex].layout = curLayout;
     this.setState({
       slides
     });
   };
 
-  removeZone = (index, i) => {
+  /** Remove the zone with the given "i" from the current slide. */
+  removeZone = i => {
     const slides = this.state.slides;
-    const layout = slides[index].layout;
+    const curLayout = this.state.currentSlide.layout;
+    const curIndex = this.state.currentSlide.index;
     // Remove all elements (in this case one element) in the layout
     // whose "i" value matches the removed element's "i" value
-    slides[index].layout = _.reject(layout, { i: i });
+    slides[curIndex].layout = _.reject(curLayout, { i: i });
     this.setState({ slides });
   };
 
@@ -206,7 +258,20 @@ class App extends React.Component {
     } else if (this.state.currentPage === "Play") {
       return <PlayPage {...this.state} />;
     } else if (this.state.currentPage === "Slideshows") {
-      return <SlideshowsPage {...this.state} />;
+      return (
+        <SlideshowsPage
+          createElement={this.createElement}
+          addZone={this.addZone}
+          removeZone={this.removeZone}
+          setContent={this.setContent}
+          onLayoutChange={this.onLayoutChange}
+          renderSlidesList={this.renderSlidesList}
+          setCurrentSlide={this.setCurrentSlide}
+          setCurrentSlideshow={this.setCurrentSlideshow}
+          toggleIsEditing={this.toggleIsEditing}
+          {...this.state}
+        />
+      );
     } else if (this.state.currentPage === "Settings") {
       return <SettingsPage {...this.state} />;
     } else if (this.state.currentPage === "Help") {
@@ -228,16 +293,13 @@ class App extends React.Component {
     let buttons = [];
     if (this.state.isEditing) {
       buttons.push(
-        <Button
-          key={0}
-          onClick={() => this.addZone(this.state.currentSlide.index)}
-        >
+        <Button key={0} onClick={this.addZone}>
           Add zone
         </Button>
       );
       buttons.push(
         <Button key={1} onClick={this.toggleIsEditing}>
-          Back to Slides Page
+          Back to Slides
         </Button>
       );
     } else {

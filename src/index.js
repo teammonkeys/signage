@@ -3,7 +3,6 @@ import ReactDOM from "react-dom";
 import Router from "./components/Router";
 import { SPFetchClient } from "@pnp/nodejs";
 import { sp } from "@pnp/sp";
-import $ from "jquery";
 
 const validFileTypes = [
   "doc",
@@ -120,7 +119,7 @@ function initializeFetcher(url, id, secret, realm) {
 }
 
 /**
- * Get the file type of a file with the given name
+ * Get the file type of a file with the given name.
  * @param name The file's full name
  */
 function getFileType(name) {

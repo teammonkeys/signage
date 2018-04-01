@@ -45,10 +45,10 @@ class SlidesPage extends React.Component {
     );
   };
 
-  renderListSlides = () => {
-    const listSlides = [];
+  renderSlidesList = () => {
+    const slidesList = [];
     this.props.slides.forEach((slide, index) => {
-      listSlides.push(
+      slidesList.push(
         <ListGroupItem
           key={index}
           onClick={() => this.props.setCurrentSlide(index)}
@@ -57,7 +57,7 @@ class SlidesPage extends React.Component {
         </ListGroupItem>
       );
     });
-    return listSlides;
+    return slidesList;
   };
 
   renderButtons = () => {
@@ -85,7 +85,7 @@ class SlidesPage extends React.Component {
             <Panel.Heading>
               <h3>Slides</h3>
             </Panel.Heading>
-            <ListGroup>{this.renderListSlides()}</ListGroup>
+            <ListGroup>{this.renderSlidesList()}</ListGroup>
           </Panel>
           {this.renderCurrentSlide()}
           {this.renderButtons()}
