@@ -1,0 +1,16 @@
+h3 {
+  text-align: center;
+  color: midnightblue;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+.item:hover {
+  cursor: pointer;
+  background-color: aliceblue;
+}
+
+.col-lg-2 {
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 1%;
+}

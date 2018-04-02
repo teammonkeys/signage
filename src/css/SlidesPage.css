@@ -1,0 +1,101 @@
+.slidesPage {
+  height: 450px;
+  padding-left: 50px;
+  padding-top: 25px;
+}
+
+.slidesList {
+  width: 400px;
+  float: left;
+}
+
+.slidePreview {
+  transform: scale(0.5);
+  transform-origin: top left;
+  float: right;
+  border-width: 3px;
+  border-style: groove;
+  margin-right: 75px;
+}
+
+.zone {
+  flex: 1;
+  z-index: 100;
+}
+
+.zone-content {
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.slide {
+  background-color: WhiteSmoke;
+  height: 450px;
+  width: 800px;
+  transform: scale(1);
+  transform-origin: top left;
+  margin: 0;
+  padding: 0;
+}
+
+.text {
+  color: transparent;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+  background-color: lightgray;
+  display: flex;
+}
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+.react-grid-item.resizing {
+  z-index: 1;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: red;
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}

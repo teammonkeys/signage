@@ -1,0 +1,37 @@
+{
+  "name": "signage",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@pnp/common": "^1.0.3",
+    "@pnp/graph": "^1.0.3",
+    "@pnp/logging": "^1.0.3",
+    "@pnp/nodejs": "^1.0.3",
+    "@pnp/odata": "^1.0.3",
+    "@pnp/sp": "^1.0.3",
+    "ajv": "^6.2.1",
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.3.1",
+    "lodash": "^4.17.5",
+    "npm": "^5.8.0",
+    "office2pdf": "0.0.2",
+    "react": "^16.3.0-alpha.1",
+    "react-bootstrap": "^0.32.1",
+    "react-dom": "^16.3.0-alpha.1",
+    "react-grid-layout": "^0.16.6",
+    "react-pdf": "^3.0.1",
+    "react-pdf-pages": "^0.1.8",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.1",
+    "react-scroll-box": "^0.3.5",
+    "react-scrollbar": "^0.5.4",
+    "react-zoom": "^0.3.1",
+    "uuid": "^3.2.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
