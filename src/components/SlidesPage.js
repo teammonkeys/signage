@@ -21,6 +21,7 @@ class SlidesPage extends React.Component {
           index={index}
           isDraggable={false}
           isResizeable={false}
+          toggleIsAddingContent={this.props.toggleIsAddingContent}
           layout={this.props.slides[index].layout}
         />
       );
@@ -67,16 +68,15 @@ class SlidesPage extends React.Component {
   };
 
   render() {
+    const curSlide = this.props.currentSlide;
     if (this.props.isEditing) {
       return (
-        <div className="slide">
-          <Slide
-            {...this.props}
-            key={this.props.currentSlide.index}
-            index={this.props.currentSlide.index}
-            layout={this.props.currentSlide.layout}
-          />
-        </div>
+        <EditSlidePage
+          {...this.props}
+          key={curSlide.index}
+          index={curSlide.index}
+          layout={curSlide.layout}
+        />
       );
     } else {
       return (

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import MainPage from "./MainPage";
 import MainPageItem from "./MainPageItem";
 import PlayPage from "./PlayPage";
@@ -83,6 +83,7 @@ class App extends React.Component {
     currentSlide: null, // The slide being viewed or edited
     currentSlideshow: null, // The slideshow being viewed or edited
     isEditing: false, // True when in slide editing mode
+    isAddingContent: false, // True when adding content to a zone
     spFiles: [], // Metadata of all files in SharePoint
 
     //// LAYOUT STATE ////
@@ -114,10 +115,16 @@ class App extends React.Component {
     this.setState({ spFiles: files });
   };
 
-  /** Toggle whether the app is in editing mode. */
+  /** Toggle whether the app is in content-adding mode. */
   toggleIsEditing = () => {
     const isEditing = this.state.isEditing;
     this.setState({ isEditing: !isEditing });
+  };
+
+  /** Toggle whether the app is in editing mode. */
+  toggleIsAddingContent = () => {
+    const isAddingContent = this.state.isAddingContent;
+    this.setState({ isAddingContent: !isAddingContent });
   };
 
   createElement = zone => {
@@ -129,10 +136,10 @@ class App extends React.Component {
       top: 0,
       cursor: "pointer"
     };
-    // The "i" value is the index of the slide and the index of the zone,
+    // The 'i' value is the index of the slide and the index of the zone,
     // separated by a dash.
     const i = zone.i;
-    // For the slide index, we take the first character of the "i" value.
+    // For the slide index, we take the first character of the 'i' value.
     const slideIndex = i[0];
     // The zone index is the number after the dash.
     const zoneIndex = i[2];
@@ -144,6 +151,7 @@ class App extends React.Component {
           index={zoneIndex}
           content={this.state.slides[slideIndex].content[zoneIndex]}
           setContent={this.setContent}
+          toggleIsAddingContent={this.toggleIsAddingContent}
         />
 
         <span className="text">{zoneIndex}</span>
@@ -204,7 +212,7 @@ class App extends React.Component {
     const slides = this.state.slides;
     const curIndex = this.state.currentSlide.index;
     const curLayout = slides[curIndex].layout.concat({
-      // Set the "i" value. The first digit is the slide's index.
+      // Set the 'i' value. The first digit is the slide's index.
       // The second digit is the number of zones in the layout.
       i: curIndex + "-" + slides[curIndex].layout.length,
       x: 0,
@@ -218,22 +226,22 @@ class App extends React.Component {
     });
   };
 
-  /** Remove the zone with the given "i" from the current slide. */
+  /** Remove the zone with the given 'i' from the current slide. */
   removeZone = i => {
     const slides = this.state.slides;
     const curLayout = this.state.currentSlide.layout;
     const curIndex = this.state.currentSlide.index;
     // Remove all elements (in this case one element) in the layout
-    // whose "i" value matches the removed element's "i" value
+    // whose 'i' value matches the removed element's 'i' value
     slides[curIndex].layout = _.reject(curLayout, { i: i });
     this.setState({ slides });
   };
 
   /** Assigns content to the current zone on double click. */
-  setContent = index => {
+  setContent = (content, zoneIndex) => {
     const slides = this.state.slides;
-    const currentSlide = this.state.currentSlide;
-    slides[currentSlide.index].content[index] = cat;
+    const curSlide = this.state.currentSlide;
+    slides[curSlide.index].content[zoneIndex] = content;
     this.setState({ slides });
   };
 
@@ -252,6 +260,7 @@ class App extends React.Component {
           onLayoutChange={this.onLayoutChange}
           setCurrentSlide={this.setCurrentSlide}
           toggleIsEditing={this.toggleIsEditing}
+          toggleIsAddingContent={this.toggleIsAddingContent}
           {...this.state}
         />
       );
@@ -269,6 +278,7 @@ class App extends React.Component {
           setCurrentSlide={this.setCurrentSlide}
           setCurrentSlideshow={this.setCurrentSlideshow}
           toggleIsEditing={this.toggleIsEditing}
+          toggleIsAddingContent={this.toggleIsAddingContent}
           {...this.state}
         />
       );

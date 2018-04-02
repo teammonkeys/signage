@@ -1,9 +1,12 @@
 import React from "react";
+import ContentItem from "./ContentItem";
+import cat from "../assets/cat.jpg";
 import "../css/SlidesPage.css";
 
 class Zone extends React.Component {
   setContent = () => {
-    this.props.setContent(this.props.index);
+    this.props.toggleIsAddingContent();
+    this.props.setContent(cat, this.props.index);
   };
 
   render() {

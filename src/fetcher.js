@@ -5,6 +5,7 @@ import { SPFetchClient } from "@pnp/nodejs";
 import { sp } from "@pnp/sp";
 
 const validFileTypes = [
+  "pdf",
   "doc",
   "docx",
   "gif",

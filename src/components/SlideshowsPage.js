@@ -89,11 +89,12 @@ class SlideshowsPage extends React.Component {
     if (this.props.isEditing) {
       return (
         <div className="slide">
-          <Slide
+          <EditSlidePage
             {...this.props}
             key={this.props.currentSlide.index}
             index={this.props.currentSlide.index}
             layout={this.props.currentSlide.layout}
+            toggleIsEditing={this.props.toggleIsEditing}
           />
         </div>
       );
