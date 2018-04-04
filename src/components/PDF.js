@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { Document, Page } from "react-pdf/dist/entry.webpack";
+import React from "react";
+import { Document, Page } from "react-pdf";
 
-class PDF extends Component {
+class PDF extends React.Component {
   state = {
     numPages: null,
     pageNumber: 1

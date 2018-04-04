@@ -1,8 +1,6 @@
 import React from "react";
 import Slide from "./Slide";
-import ReactGridLayout from "react-grid-layout";
-import _ from "lodash";
-import { Panel, ListGroup, ListGroupItem } from "react-bootstrap";
+import { Button, Panel, ListGroup, ListGroupItem } from "react-bootstrap";
 import "../../node_modules/bootstrap/dist/css/bootstrap.css";
 import EditSlidePage from "./EditSlidePage";
 
@@ -11,36 +9,43 @@ class SlidesPage extends React.Component {
     isEditing: false
   };
 
+  /** Toggle whether the page is in editing mode. */
+  toggleIsEditing = () => {
+    const isEditing = this.state.isEditing;
+    this.setState({ isEditing: !isEditing });
+  };
+
   renderSlides = () => {
     const slides = [];
     this.props.slides.forEach((slide, index) => {
-      slides.push(
-        <Slide
-          {...this.props}
-          key={index}
-          index={index}
-          isDraggable={false}
-          isResizeable={false}
-          toggleIsAddingContent={this.props.toggleIsAddingContent}
-          layout={this.props.slides[index].layout}
-        />
-      );
+      if (slide !== null)
+        slides.push(
+          <Slide
+            {...this.props}
+            key={index}
+            index={index}
+            isDraggable={false}
+            isResizeable={false}
+            layout={this.props.slides[index].layout}
+          />
+        );
     });
     return slides;
   };
 
   renderCurrentSlide = () => {
-    const currentSlide = this.props.currentSlide;
-    if (currentSlide === null) return null;
+    if (this.props.currentSlide === null) return null;
+    const curSlide = this.props.currentSlide;
     return (
       <div className="slidePreview">
         <Slide
           {...this.props}
-          key={currentSlide.index}
-          index={currentSlide.index}
+          key={curSlide.index}
+          index={curSlide.index}
+          layout={curSlide.layout}
           isDraggable={false}
           isResizeable={false}
-          layout={currentSlide.layout}
+          isEditing={false}
         />
       </div>
     );
@@ -49,37 +54,65 @@ class SlidesPage extends React.Component {
   renderSlidesList = () => {
     const slidesList = [];
     this.props.slides.forEach((slide, index) => {
-      slidesList.push(
-        <ListGroupItem
-          key={index}
-          onClick={() => this.props.setCurrentSlide(index)}
-        >
-          {this.props.slides[index].name}
-        </ListGroupItem>
-      );
+      if (slide !== undefined) {
+        slidesList.push(
+          <ListGroupItem
+            key={index}
+            onClick={() => this.props.setCurrentSlide(slide)}
+          >
+            {slide.name}
+          </ListGroupItem>
+        );
+      }
     });
     return slidesList;
   };
 
-  renderButtons = () => {
+  removeCurrentSlide = () => {
     if (this.props.currentSlide !== null) {
-      return <button onClick={this.props.toggleIsEditing}>Edit slide</button>;
+      this.props.removeSlide(this.props.currentSlide.index);
+      this.props.setCurrentSlide(null);
     }
+  };
+
+  renderButtons = () => {
+    const buttons = [];
+    buttons.push(
+      <Button key={0} onClick={this.props.addSlide}>
+        Add slide
+      </Button>
+    );
+    if (this.props.currentSlide !== null) {
+      buttons.push(
+        <Button key={1} onClick={this.toggleIsEditing}>
+          Edit slide
+        </Button>
+      );
+      buttons.push(
+        <Button key={2} onClick={this.removeCurrentSlide}>
+          Remove slide
+        </Button>
+      );
+    }
+    return buttons;
   };
 
   render() {
     const curSlide = this.props.currentSlide;
-    if (this.props.isEditing) {
+    if (this.state.isEditing) {
       return (
         <EditSlidePage
           {...this.props}
           key={curSlide.index}
           index={curSlide.index}
           layout={curSlide.layout}
+          isEditing={this.state.isEditing}
+          toggleIsEditing={this.toggleIsEditing}
         />
       );
-    } else {
-      return (
+    }
+    return (
+      <div>
         <div className="slidesPage">
           <Panel className="slidesList">
             <Panel.Heading>
@@ -88,32 +121,11 @@ class SlidesPage extends React.Component {
             <ListGroup>{this.renderSlidesList()}</ListGroup>
           </Panel>
           {this.renderCurrentSlide()}
-          {this.renderButtons()}
         </div>
-      );
-    }
+        {this.renderButtons()}
+      </div>
+    );
   }
 }
 
 export default SlidesPage;
-
-/*
-ref={RGL => {
-  this.RGL = RGL;
-}}
-createElement={this.props.createElement}
-onLayoutChange={this.props.onLayoutChange}
-slides={this.props.slides}
-layout={this.props.slides[index].layout}
-cols={this.props.cols}
-newCounter={this.props.newCounter}
-width={this.props.width}
-maxRows={this.props.maxRows}
-compactType={this.props.compactType}
-preventCollision={this.props.preventCollision}
-margin={this.props.margin}
-numZones={this.props.numZones}
-autoSize={this.props.autoSize}
-rowHeight={this.props.rowHeight}
-content={this.props.content}
-*/

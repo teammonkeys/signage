@@ -1,23 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import Router from "./components/Router";
 import { SPFetchClient } from "@pnp/nodejs";
 import { sp } from "@pnp/sp";
 
-const validFileTypes = [
-  "pdf",
-  "doc",
-  "docx",
-  "gif",
-  "jpg",
-  "jpeg",
-  "png",
-  "ppt",
-  "pptx"
-];
+const documentTypes = ["pdf", "docx", "doc", "pptx", "ppt", "rtf", "txt"];
+const imageTypes = ["png", "gif", "jpg", "jpeg"];
+const videoTypes = ["mp4", "avi", "wmv", "mov"];
+const validFileTypes = documentTypes.concat(imageTypes.concat(videoTypes));
 
 export async function fetchSPFiles() {
   // Initialize the SharePoint fetcher with the values from the SharePoint add-in
+
   initializeFetcher(
     "https://rowansweng.sharepoint.com",
     "155584b4-5dc2-4283-949d-af5986e39eb3",
@@ -49,7 +40,8 @@ export async function getAllFiles() {
         allFiles.push({
           name: file["Name"],
           url: file["ServerRelativeUrl"], // The relative URL (path) of the file
-          fileType: fileType
+          fileType: fileType,
+          category: getCategory(fileType) // Assign the file a category, such as "document"
         });
       }
     }
@@ -105,6 +97,17 @@ export function initializeFetcher(url, id, secret, realm) {
       }
     }
   });
+}
+
+/**
+ * Returns the category of a given file type. Used for sorting purposes.
+ * @param {string} fileType The file type to be categorized
+ */
+export function getCategory(fileType) {
+  if (documentTypes.includes(fileType)) return "document";
+  if (imageTypes.includes(fileType)) return "image";
+  if (videoTypes.includes(fileType)) return "video";
+  return "invalid";
 }
 
 /**

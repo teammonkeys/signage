@@ -1,12 +1,6 @@
 import React from "react";
 import Slide from "./Slide";
-import {
-  Panel,
-  ListGroup,
-  ListGroupItem,
-  Button,
-  Modal
-} from "react-bootstrap";
+import { ListGroup, ListGroupItem, Button, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 
 class EditSlidePage extends React.Component {
@@ -14,8 +8,18 @@ class EditSlidePage extends React.Component {
     isAddingContent: false
   };
 
+  /** Toggle whether the page is in content-adding mode. */
+  toggleIsAddingContent = () => {
+    const isAddingContent = this.state.isAddingContent;
+    this.setState({ isAddingContent: !isAddingContent });
+  };
+
+  addZone = () => {
+    this.props.addZone(this.props.index);
+  };
+
   renderContentModal = () => {
-    if (!this.props.isAddingContent) return null;
+    if (!this.state.isAddingContent) return null;
     return (
       <Modal.Dialog>
         <Modal.Header>
@@ -26,7 +30,7 @@ class EditSlidePage extends React.Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={this.props.toggleIsAddingContent}>Close</Button>
+          <Button onClick={this.toggleIsAddingContent}>Close</Button>
           <Button bsStyle="primary">Save changes</Button>
         </Modal.Footer>
       </Modal.Dialog>
@@ -43,16 +47,35 @@ class EditSlidePage extends React.Component {
     return listItems;
   };
 
+  renderButtons = () => {
+    const buttons = [];
+    buttons.push(
+      <Button key={0} onClick={this.addZone}>
+        Add zone
+      </Button>
+    );
+    buttons.push(
+      <Button key={1} onClick={this.props.toggleIsEditing}>
+        Back to Slides
+      </Button>
+    );
+    return buttons;
+  };
+
   render() {
     return (
-      <div className="slide">
-        <Slide
-          {...this.props}
-          key={this.props.index}
-          index={this.props.index}
-          layout={this.props.layout}
-        />
-        {this.renderContentModal()}
+      <div>
+        <div className="slide">
+          <Slide
+            {...this.props}
+            key={this.props.index}
+            index={this.props.index}
+            layout={this.props.layout}
+            toggleIsAddingContent={this.toggleIsAddingContent}
+          />
+          {this.renderContentModal()}
+        </div>
+        {this.renderButtons()}
       </div>
     );
   }

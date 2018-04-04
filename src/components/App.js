@@ -1,16 +1,12 @@
 import React from "react";
-import { Button, Modal } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import MainPage from "./MainPage";
-import MainPageItem from "./MainPageItem";
 import PlayPage from "./PlayPage";
 import SlidesPage from "./SlidesPage";
-import Zone from "./Zone";
 import SlideshowsPage from "./SlideshowsPage";
 import SettingsPage from "./SettingsPage";
 import HelpPage from "./HelpPage";
-import _ from "lodash";
 import "../css/App.css";
-import cat from "../assets/cat.jpg";
 import play from "../assets/icons/play.png";
 import slides from "../assets/icons/slides.png";
 import slideshows from "../assets/icons/slideshows.png";
@@ -18,7 +14,6 @@ import settings from "../assets/icons/settings.png";
 import help from "../assets/icons/help.png";
 import exit from "../assets/icons/exit.png";
 import { fetchSPFiles } from "../fetcher";
-import { Document, Page } from "react-pdf/dist/entry.webpack";
 
 class App extends React.Component {
   state = {
@@ -29,49 +24,49 @@ class App extends React.Component {
         index: 0,
         layout: [
           {
-            i: "0" + "-" + 0,
+            i: "0",
             x: 0,
             y: 0,
             w: 80,
             h: 80
           },
           {
-            i: "0" + "-" + 1,
+            i: "1",
             x: 160,
             y: 0,
             w: 80,
             h: 80
           }
         ],
-        content: []
+        content: [null, null]
       },
       {
         name: "Slide 2",
         index: 1,
         layout: [
           {
-            i: "1" + "-" + 0,
+            i: "2",
             x: 80,
             y: 0,
             w: 80,
             h: 80
           }
         ],
-        content: []
+        content: [null]
       },
       {
         name: "Slide 3",
         index: 2,
         layout: [
           {
-            i: "2" + "-" + 0,
+            i: "3",
             x: 240,
             y: 160,
             w: 80,
             h: 80
           }
         ],
-        content: []
+        content: [null]
       }
     ],
 
@@ -82,9 +77,8 @@ class App extends React.Component {
     slideshows: [], // All saved slideshows
     currentSlide: null, // The slide being viewed or edited
     currentSlideshow: null, // The slideshow being viewed or edited
-    isEditing: false, // True when in slide editing mode
-    isAddingContent: false, // True when adding content to a zone
     spFiles: [], // Metadata of all files in SharePoint
+    zoneCounter: 4, // Used to make unique keys. Increments when new zones are added
 
     //// LAYOUT STATE ////
     cols: 800, // Columns in the layout
@@ -111,75 +105,27 @@ class App extends React.Component {
         slides: [this.state.slides[2]]
       }
     ];
-    let files = await fetchSPFiles();
-    this.setState({ spFiles: files });
+    const spFiles = await fetchSPFiles();
+    this.setState({ spFiles });
   };
 
-  /** Toggle whether the app is in content-adding mode. */
-  toggleIsEditing = () => {
-    const isEditing = this.state.isEditing;
-    this.setState({ isEditing: !isEditing });
-  };
-
-  /** Toggle whether the app is in editing mode. */
-  toggleIsAddingContent = () => {
-    const isAddingContent = this.state.isAddingContent;
-    this.setState({ isAddingContent: !isAddingContent });
-  };
-
-  createElement = zone => {
-    // The style of the remove button is declared here because
-    // it won't work in the external CSS!
-    const removeStyle = {
-      position: "absolute",
-      right: "1px",
-      top: 0,
-      cursor: "pointer"
-    };
-    // The 'i' value is the index of the slide and the index of the zone,
-    // separated by a dash.
-    const i = zone.i;
-    // For the slide index, we take the first character of the 'i' value.
-    const slideIndex = i[0];
-    // The zone index is the number after the dash.
-    const zoneIndex = i[2];
-    return (
-      <div key={i} data-grid={zone}>
-        <Zone
-          className="zone"
-          key={i}
-          index={zoneIndex}
-          content={this.state.slides[slideIndex].content[zoneIndex]}
-          setContent={this.setContent}
-          toggleIsAddingContent={this.toggleIsAddingContent}
-        />
-
-        <span className="text">{zoneIndex}</span>
-        <span
-          className="remove"
-          style={removeStyle}
-          onClick={() => this.removeZone(i)}
-        >
-          x
-        </span>
-      </div>
-    );
+  incrementZoneCounter = () => {
+    this.setState({ zoneCounter: this.state.zoneCounter + 1 });
   };
 
   /**
    * Syncs the layout in state with the layout of the RGL.
    */
   onLayoutChange = RGL => {
-    if (RGL !== undefined && this.state.isEditing === true) {
-      let index = this.state.currentSlide.index;
-      let slides = this.state.slides;
-      slides[index].layout = RGL;
-      this.setState({ slides });
-    }
+    const slides = this.state.slides;
+    const curSlideIndex = this.state.currentSlide.index;
+    slides[curSlideIndex].layout = RGL;
+    this.setState({ slides });
   };
 
-  setCurrentSlide = index => {
-    this.setState({ currentSlide: this.state.slides[index] });
+  setCurrentSlide = slide => {
+    const currentSlide = slide;
+    this.setState({ currentSlide });
   };
 
   setCurrentSlideshow = index => {
@@ -189,51 +135,129 @@ class App extends React.Component {
     });
   };
 
-  addSlide = () => {
-    const slides = this.state.slides.concat({
-      // The user-facing name is one higher than the index.
-      name: "Slide " + slides.length + 1,
-      index: slides.length,
-      layout: []
+  /**
+   * Generates a name for a new slide. If slides have been removed and there
+   * are gaps between indices (e.g. 0, 2, 3) a name to fill the first
+   * gap is generated. Otherwise, it generates a string ending in a number
+   * equal to the length of the slide list before the addition, plus one.
+   */
+  generateSlideName = () => {
+    const slides = this.state.slides; // .filter(slide => slide !== undefined);
+    const slideNames = slides.map(slide => slide.name);
+    for (let i = 0, name; i < slides.length; i++) {
+      name = "Slide " + (i + 1);
+      if (!slideNames.includes(name)) return name;
+    }
+    return "Slide " + (slides.length + 1);
+  };
+
+  /**
+   * Generates an index for a new slide. If slides have been removed and there
+   * are gaps between indices (e.g. 0, 2, 3) an index to fill the first
+   * gap is generated. Otherwise, it generates an index equal to the length of the
+   * slide list before the addition.
+   */
+  generateIndex = array => {
+    const newArray = array.filter(element => element !== undefined);
+    const indices = newArray.map(element => element.index);
+    for (let i = 0; i < newArray.length; i++) {
+      if (!indices.includes(i)) return i;
+    }
+    return newArray.length;
+  };
+
+  /**
+   * After removing a slide, ensure each slide's index matches
+   * its position in the slides array.
+   */
+  resetSlideIndices = () => {
+    const slides = this.state.slides;
+    slides.forEach((slide, index) => {
+      slide.index = index;
     });
+  };
+
+  /**
+   * After removing a zone, ensure each zone's index and 'i' value
+   * matches its position in the slide's layout.
+   */
+  resetZoneIndices = () => {
+    const curLayout = this.state.currentSlide.layout;
+    curLayout.forEach((zone, index) => {
+      zone.index = index;
+      zone.i = index.toString();
+    });
+  };
+
+  addSlide = () => {
+    const slides = this.state.slides;
+    slides.push({
+      // The user-facing name is one higher than the index.
+      name: this.generateSlideName(),
+      index: slides.length,
+      layout: [],
+      content: []
+    });
+    this.setState({ slides });
+  };
+
+  removeSlide = index => {
+    let slides = this.state.slides;
+    slides = slides.filter(slide => slide.index !== index);
+    this.resetSlideIndices();
+    this.setState({ slides });
+  };
+
+  setCurrentLayout = layout => {
+    const slides = this.state.slides;
+    const curSlideIndex = this.state.currentSlide.index;
+    slides[curSlideIndex].layout = layout;
+    this.setState({ slides });
   };
 
   addSlideshow = () => {
     const slideshows = this.state.slideshows.concat({
       // The user-facing name is one higher than the index.
       name: "Slideshow " + slides.length + 1,
-      index: slides.length,
-      layout: []
+      index: slides.length
     });
+    this.setState({ slideshows });
+  };
+
+  /** Return the position in the slides list of the slide with the given index. */
+  getSlideIndex = index => {
+    const slide = this.state.slides.find(slide => slide.index === index);
+    return slide.index;
   };
 
   /** Add a new zone to the current slide. */
   addZone = () => {
     const slides = this.state.slides;
-    const curIndex = this.state.currentSlide.index;
-    const curLayout = slides[curIndex].layout.concat({
-      // Set the 'i' value. The first digit is the slide's index.
-      // The second digit is the number of zones in the layout.
-      i: curIndex + "-" + slides[curIndex].layout.length,
+    const curSlide = this.state.currentSlide;
+    const curIndex = curSlide.index;
+    const curLayout = curSlide.layout;
+    slides[curIndex].layout = curLayout.concat({
+      i: curLayout.length.toString(),
       x: 0,
       y: 0,
       w: 80,
       h: 80
     });
-    slides[curIndex].layout = curLayout;
-    this.setState({
-      slides
-    });
+    slides[curIndex].content[curLayout.length] = null;
+    this.setState({ slides });
   };
 
-  /** Remove the zone with the given 'i' from the current slide. */
-  removeZone = i => {
+  /** Remove the zone with the given index from the current slide. */
+  removeZone = zoneIndex => {
     const slides = this.state.slides;
-    const curLayout = this.state.currentSlide.layout;
-    const curIndex = this.state.currentSlide.index;
-    // Remove all elements (in this case one element) in the layout
-    // whose 'i' value matches the removed element's 'i' value
-    slides[curIndex].layout = _.reject(curLayout, { i: i });
+    const curSlide = this.state.currentSlide;
+    const i = zoneIndex.toString();
+    const newLayout = curSlide.layout.filter(zone => zone.i !== i);
+    slides[curSlide.index].layout = newLayout;
+    const content = slides[curSlide.index].content;
+    content.splice(zoneIndex, 1); // Remove the content item at the zone index
+    //slides[curSlide.index].content = content;
+    this.resetZoneIndices();
     this.setState({ slides });
   };
 
@@ -259,8 +283,12 @@ class App extends React.Component {
           setContent={this.setContent}
           onLayoutChange={this.onLayoutChange}
           setCurrentSlide={this.setCurrentSlide}
-          toggleIsEditing={this.toggleIsEditing}
+          addSlide={this.addSlide}
+          removeSlide={this.removeSlide}
           toggleIsAddingContent={this.toggleIsAddingContent}
+          generateIndex={this.generateIndex}
+          getSlide={this.getSlide}
+          setCurrentLayout={this.setCurrentLayout}
           {...this.state}
         />
       );
@@ -277,8 +305,9 @@ class App extends React.Component {
           renderSlidesList={this.renderSlidesList}
           setCurrentSlide={this.setCurrentSlide}
           setCurrentSlideshow={this.setCurrentSlideshow}
-          toggleIsEditing={this.toggleIsEditing}
           toggleIsAddingContent={this.toggleIsAddingContent}
+          generateIndex={this.generateIndex}
+          setCurrentLayout={this.setCurrentLayout}
           {...this.state}
         />
       );
@@ -302,16 +331,6 @@ class App extends React.Component {
   renderButtons = () => {
     let buttons = [];
     if (this.state.isEditing) {
-      buttons.push(
-        <Button key={0} onClick={this.addZone}>
-          Add zone
-        </Button>
-      );
-      buttons.push(
-        <Button key={1} onClick={this.toggleIsEditing}>
-          Back to Slides
-        </Button>
-      );
     } else {
       if (this.state.currentPage !== "Main") {
         buttons.push(

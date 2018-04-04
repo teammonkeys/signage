@@ -49,14 +49,15 @@
 }
 
 .react-grid-item {
-  transition: all 200ms ease;
   transition-property: left, top;
   background-color: lightgray;
   display: flex;
 }
+
 .react-grid-item.cssTransforms {
   transition-property: transform;
 }
+
 .react-grid-item.resizing {
   z-index: 1;
   will-change: width, height;
