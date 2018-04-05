@@ -26,7 +26,6 @@ class Zone extends React.Component {
   render() {
     return (
       <div className="zone" onDoubleClick={this.setContent}>
-        <span className="text">{this.props.i}</span>
         <span className="remove" style={removeStyle} onClick={this.removeZone}>
           x
         </span>

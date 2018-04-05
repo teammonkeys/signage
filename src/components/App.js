@@ -254,10 +254,11 @@ class App extends React.Component {
     const i = zoneIndex.toString();
     const newLayout = curSlide.layout.filter(zone => zone.i !== i);
     slides[curSlide.index].layout = newLayout;
-    const content = slides[curSlide.index].content;
-    content.splice(zoneIndex, 1); // Remove the content item at the zone index
-    //slides[curSlide.index].content = content;
-    this.resetZoneIndices();
+
+    const oldContent = slides[curSlide.index].content;
+    delete oldContent[zoneIndex]; // Ensures object does not remain in memory
+    oldContent.splice(zoneIndex, 1); // Remove the array position at the zone index
+    this.resetZoneIndices(); // Match all zone indices with their new position in the layout array
     this.setState({ slides });
   };
 

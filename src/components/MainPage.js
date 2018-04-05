@@ -2,7 +2,6 @@ import React from "react";
 import MainPageItem from "./MainPageItem";
 import MainPageExit from "./MainPageExit";
 import { Grid, Row, Col } from "react-bootstrap";
-import "../css/MainPage.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.css";
 
 class MainPage extends React.Component {
