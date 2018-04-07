@@ -104,7 +104,7 @@ class SlidesPage extends React.Component {
         <EditSlidePage
           {...this.props}
           key={curSlide.index}
-          index={curSlide.index}
+          slideIndex={curSlide.index}
           layout={curSlide.layout}
           isEditing={this.state.isEditing}
           toggleIsEditing={this.toggleIsEditing}

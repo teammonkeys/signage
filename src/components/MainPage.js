@@ -63,18 +63,4 @@ class MainPage extends React.Component {
     );
   }
 }
-
-/*
-            <div className="items">
-        {pages.map((page, i) => (
-          <MainPageItem
-            className="item"
-            key={i}
-            page={pages[i]}
-            icon={icons[i]}
-            setPage={this.props.setPage}
-          />
-        ))}
-      </div>
-*/
 export default MainPage;

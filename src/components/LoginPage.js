@@ -62,27 +62,3 @@ class LoginPage extends React.Component {
 }
 
 export default LoginPage;
-
-/*
-  
-  username = React.createRef();
-  password = React.createRef();
-
-  login = event => {
-    // 1. Stop the form from submitting
-    event.preventDefault();
-    // 2. get the text from that input
-    const username = this.myUsername.value.value;
-    const password = this.myPassword.value.value;
-  };
-
-  render() {
-    return (
-      <form className="login" id="login" onSubmit={this.login}>
-        <input type="text" ref={this.username} placeholder="Username" />
-        <input type="text" ref={this.password} placeholder="Password" />
-        <button type="submit">Log in</button>
-      </form>
-    );
-  }
-  */

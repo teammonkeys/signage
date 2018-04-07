@@ -5,16 +5,17 @@ import "../css/SlidesPage.css";
 
 class Slide extends React.Component {
   createZone = (newZone, zoneIndex) => {
-    const slideIndex = this.props.index;
+    const slideIndex = this.props.slideIndex;
     return (
       <div key={zoneIndex} data-grid={newZone}>
         <Zone
           className="zone"
           key={newZone.i} // Unique value for React
-          index={zoneIndex}
-          i={newZone.i} // Unique value for RGL
           slideIndex={slideIndex} // The index of the zone's parent slide
-          content={this.props.slides[slideIndex].content[zoneIndex]}
+          zoneIndex={zoneIndex}
+          i={newZone.i} // Unique value for ReactGridLayout
+          //content={this.props.slides[slideIndex].content[zoneIndex]}
+          contentType={this.props.contentType}
           setContent={this.props.setContent}
           toggleIsAddingContent={this.props.toggleIsAddingContent}
           removeZone={this.props.removeZone}
@@ -27,10 +28,7 @@ class Slide extends React.Component {
   renderSlide = () => {
     return (
       <div className="slide">
-        <ReactGridLayout
-          {...this.props}
-          onLayoutChange={this.props.onLayoutChange}
-        >
+        <ReactGridLayout {...this.props}>
           {this.props.currentSlide.layout.map((newZone, zoneIndex) =>
             this.createZone(newZone, zoneIndex)
           )}

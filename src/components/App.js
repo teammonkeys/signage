@@ -13,7 +13,9 @@ import slideshows from "../assets/icons/slideshows.png";
 import settings from "../assets/icons/settings.png";
 import help from "../assets/icons/help.png";
 import exit from "../assets/icons/exit.png";
-import { fetchSPFiles } from "../fetcher";
+
+import openSocket from "socket.io-client";
+const socket = openSocket("http://localhost:8000");
 
 class App extends React.Component {
   state = {
@@ -78,7 +80,6 @@ class App extends React.Component {
     currentSlide: null, // The slide being viewed or edited
     currentSlideshow: null, // The slideshow being viewed or edited
     spFiles: [], // Metadata of all files in SharePoint
-    zoneCounter: 4, // Used to make unique keys. Increments when new zones are added
 
     //// LAYOUT STATE ////
     cols: 800, // Columns in the layout
@@ -91,26 +92,47 @@ class App extends React.Component {
     autoSize: false // Whether zones resize to fit their content
   };
 
-  /** Fetch all SharePoint files and set the example slideshow */
-  componentDidMount = async () => {
-    this.state.slideshows = [
-      {
-        name: "Slideshow 1",
-        index: 0,
-        slides: [this.state.slides[0], this.state.slides[1]]
-      },
-      {
-        name: "Slideshow 2",
-        index: 1,
-        slides: [this.state.slides[2]]
-      }
-    ];
-    const spFiles = await fetchSPFiles();
-    this.setState({ spFiles });
+  /** Fetch all SharePoint files and set the sample slideshow */
+  componentDidMount = () => {
+    this.fetchAllSPFiles((err, spFiles) => {
+      console.log(spFiles);
+      this.setState({
+        spFiles
+      });
+    });
+
+    this.setState({
+      slideshows: [
+        {
+          name: "Slideshow 1",
+          index: 0,
+          slides: [this.state.slides[0], this.state.slides[1]]
+        },
+        {
+          name: "Slideshow 2",
+          index: 1,
+          slides: [this.state.slides[2]]
+        }
+      ]
+      //const spFiles = await fetchSPFiles();
+      //this.setState({ spFiles });
+    });
   };
 
-  incrementZoneCounter = () => {
-    this.setState({ zoneCounter: this.state.zoneCounter + 1 });
+  fetchAllSPFiles = callback => {
+    socket.on("spFiles", spFiles => callback(null, spFiles));
+    socket.emit("fetchAllSPMetadata");
+  };
+
+  fetchSPFile = callback => {
+    socket.on("spFile", spFile => callback(null, spFile));
+    socket.emit("fetchSPFile");
+  };
+
+  getSPFile = () => {
+    this.fetchSPFile((err, spFile) => {
+      console.log(spFile);
+    });
   };
 
   /**
@@ -142,7 +164,7 @@ class App extends React.Component {
    * equal to the length of the slide list before the addition, plus one.
    */
   generateSlideName = () => {
-    const slides = this.state.slides; // .filter(slide => slide !== undefined);
+    const slides = this.state.slides;
     const slideNames = slides.map(slide => slide.name);
     for (let i = 0, name; i < slides.length; i++) {
       name = "Slide " + (i + 1);
@@ -252,11 +274,12 @@ class App extends React.Component {
     const slides = this.state.slides;
     const curSlide = this.state.currentSlide;
     const i = zoneIndex.toString();
+    // Keep all zones except the one whose 'i' matches that of the removed zone
     const newLayout = curSlide.layout.filter(zone => zone.i !== i);
     slides[curSlide.index].layout = newLayout;
 
     const oldContent = slides[curSlide.index].content;
-    delete oldContent[zoneIndex]; // Ensures object does not remain in memory
+    delete oldContent[zoneIndex]; // Ensure object does not remain in memory
     oldContent.splice(zoneIndex, 1); // Remove the array position at the zone index
     this.resetZoneIndices(); // Match all zone indices with their new position in the layout array
     this.setState({ slides });
@@ -359,6 +382,7 @@ class App extends React.Component {
       <div>
         {this.renderPage()}
         {this.renderButtons()}
+        <Button onClick={this.getSPFile}>Fetch</Button>
       </div>
     );
   }
