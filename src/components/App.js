@@ -94,8 +94,7 @@ class App extends React.Component {
 
   /** Fetch all SharePoint files and set the sample slideshow */
   componentDidMount = () => {
-    this.fetchAllSPFiles((err, spFiles) => {
-      console.log(spFiles);
+    this.fetchAllSPMetadata((err, spFiles) => {
       this.setState({
         spFiles
       });
@@ -119,7 +118,7 @@ class App extends React.Component {
     });
   };
 
-  fetchAllSPFiles = callback => {
+  fetchAllSPMetadata = callback => {
     socket.on("spFiles", spFiles => callback(null, spFiles));
     socket.emit("fetchAllSPMetadata");
   };
@@ -382,7 +381,6 @@ class App extends React.Component {
       <div>
         {this.renderPage()}
         {this.renderButtons()}
-        <Button onClick={this.getSPFile}>Fetch</Button>
       </div>
     );
   }

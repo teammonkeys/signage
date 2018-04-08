@@ -20,6 +20,7 @@
     "lib-unoconv": "^0.1.2",
     "lodash": "^4.17.5",
     "npm": "^5.8.0",
+    "office-converter": "^1.0.2",
     "office2pdf": "0.0.2",
     "react": "^16.3.1",
     "react-bootstrap": "^0.32.1",

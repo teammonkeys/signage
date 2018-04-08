@@ -1,4 +1,7 @@
 import React from "react";
+import { ListGroupItem } from "react-bootstrap";
+import openSocket from "socket.io-client";
+const socket = openSocket("http://localhost:8000");
 
 class SPContentListItem extends React.Component {
   setContent = async () => {
@@ -15,10 +18,12 @@ class SPContentListItem extends React.Component {
 
   render() {
     return (
-      <div onDoubleClick={this.setContent}>
-        <span>{this.props.name}</span>
-        <span>{this.props.url}</span>
-      </div>
+      <ListGroupItem
+        onClick={() => console.log("lama")}
+        onDoubleClick={this.setContent}
+      >
+        <p>{this.props.name}</p>
+      </ListGroupItem>
     );
   }
 }

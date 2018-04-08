@@ -2,7 +2,7 @@ const { SPFetchClient } = require("@pnp/nodejs");
 const { sp } = require("@pnp/sp");
 const createDataUri = require("create-data-uri");
 const base64_arraybuffer = require("base64-arraybuffer");
-const unoconv = require("lib-unoconv");
+const unoconv = require("unoconv");
 const openSocket = require("socket.io-client");
 const socket = openSocket("http://localhost:8000");
 
@@ -12,11 +12,13 @@ const videoTypes = ["mp4", "avi", "wmv", "mov"];
 const validFileTypes = documentTypes.concat(imageTypes.concat(videoTypes));
 
 function convertOfficeToPdf(documentBuffer) {
-  unoconv.convert(documentBuffer, "pdf", function(err, result) {
+  unoconv.convert(documentBuffer, "pdf", ["./", 2002], function(err, result) {
+    fs.writeFile("converted.pdf", result);
     const pdfBuffer = result;
     console.log(pdfBuffer);
+    return pdfBuffer;
   });
-  return base64_arraybuffer.encode(pdfBuffer);
+  //return base64_arraybuffer.encode(pdfBuffer);
 }
 
 function convertBufferToString(buffer) {
