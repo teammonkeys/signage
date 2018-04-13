@@ -1,34 +1,36 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import Router from "./components/Router";
-import { SPFetchClient } from "@pnp/nodejs";
-import { sp } from "@pnp/sp";
+const { SPFetchClient } = require("@pnp/nodejs");
+const { sp } = require("@pnp/sp");
+const createDataUri = require("create-data-uri");
+const base64_arraybuffer = require("base64-arraybuffer");
+const unoconv = require("unoconv");
+const openSocket = require("socket.io-client");
+const socket = openSocket("http://localhost:8000");
 
-const validFileTypes = [
-  "pdf",
-  "doc",
-  "docx",
-  "gif",
-  "jpg",
-  "jpeg",
-  "png",
-  "ppt",
-  "pptx"
-];
+const documentTypes = ["pdf", "docx", "doc", "pptx", "ppt", "rtf", "txt"];
+const imageTypes = ["png", "gif", "jpg", "jpeg"];
+const videoTypes = ["mp4", "avi", "wmv", "mov"];
+const validFileTypes = documentTypes.concat(imageTypes.concat(videoTypes));
 
-export async function fetchSPFiles() {
-  // Initialize the SharePoint fetcher with the values from the SharePoint add-in
-  initializeFetcher(
-    "https://rowansweng.sharepoint.com",
-    "155584b4-5dc2-4283-949d-af5986e39eb3",
-    "77IjS/vtrFuYXk2mq0XwA5AeX2Vy7ze0OvnikvWkfb4=",
-    "c437039a-84e9-47f2-ac34-b703bb7fcc59"
-  );
-  return await getAllFiles();
+function convertOfficeToPdf(documentBuffer) {
+  unoconv.convert(documentBuffer, "pdf", ["./", 2002], function(err, result) {
+    fs.writeFile("converted.pdf", result);
+    const pdfBuffer = result;
+    console.log(pdfBuffer);
+    return pdfBuffer;
+  });
+  //return base64_arraybuffer.encode(pdfBuffer);
+}
+
+function convertBufferToString(buffer) {
+  return base64_arraybuffer.encode(buffer);
+}
+
+async function fetchSPFile(fileType, url) {
+  return sp.web.getFileByServerRelativeUrl(url).getBuffer();
 }
 
 /** Return a Promise that contains all SharePoint files. */
-export async function getAllFiles() {
+async function fetchAllSPMetadata() {
   // The first folder to traverse is the root folder, called "Shared Documents"
   const rootFolder = "/Shared Documents";
   // This stack will contain subfolders to be checked for other subfolders
@@ -49,7 +51,8 @@ export async function getAllFiles() {
         allFiles.push({
           name: file["Name"],
           url: file["ServerRelativeUrl"], // The relative URL (path) of the file
-          fileType: fileType
+          fileType: fileType,
+          category: getCategory(fileType) // Assign the file a category, such as "document"
         });
       }
     }
@@ -65,7 +68,7 @@ export async function getAllFiles() {
  * @param folders The list of all folder and subfolder paths
  * @return A Promise containing the list of all SharePoint folder paths
  */
-export async function getAllFolders(folder, stack, folders) {
+async function getAllFolders(folder, stack, folders) {
   // Fetch the JSON data from SharePoint
   let subfolders = await sp.web
     .getFolderByServerRelativeUrl(folder)
@@ -97,7 +100,7 @@ export async function getAllFolders(folder, stack, folders) {
  * @param secret The client secret of your SharePoint add-in
  * @param realm The realm of your SharePoint add-in
  */
-export function initializeFetcher(url, id, secret, realm) {
+function initializeFetcher(url, id, secret, realm) {
   sp.setup({
     sp: {
       fetchClientFactory: () => {
@@ -108,12 +111,29 @@ export function initializeFetcher(url, id, secret, realm) {
 }
 
 /**
+ * Returns the category of a given file type. Used for sorting purposes.
+ * @param {string} fileType The file type to be categorized
+ */
+function getCategory(fileType) {
+  if (documentTypes.includes(fileType)) return "document";
+  if (imageTypes.includes(fileType)) return "image";
+  if (videoTypes.includes(fileType)) return "video";
+  return "invalid";
+}
+
+/**
  * Get the file type of a file with the given name.
  * @param name The file's full name
  */
-export function getFileType(name) {
+function getFileType(name) {
   // Split a string by periods
   let str = name.split(".");
   // Return only the string after the last period
   return str[str.length - 1];
 }
+
+module.exports.initializeFetcher = initializeFetcher;
+module.exports.fetchAllSPMetadata = fetchAllSPMetadata;
+module.exports.fetchSPFile = fetchSPFile;
+module.exports.convertBufferToString = convertBufferToString;
+module.exports.convertOfficeToPdf = convertOfficeToPdf;

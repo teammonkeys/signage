@@ -1,6 +1,5 @@
 import React from "react";
 import { Thumbnail } from "react-bootstrap";
-import slideIcon from "../assets/slideshow.png";
 import "../css/MainPageItem.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.css";
 
