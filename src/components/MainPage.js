@@ -25,6 +25,8 @@ class MainPage extends React.Component {
               setPage={this.props.setPage}
             />
           </Col>
+        </Row>
+        <Row className="show-grid" key={1}>
           <Col key={2} lg={2}>
             <MainPageItem
               key={2}
@@ -33,8 +35,6 @@ class MainPage extends React.Component {
               setPage={this.props.setPage}
             />
           </Col>
-        </Row>
-        <Row className="show-grid" key={1}>
           <Col key={3} lg={2}>
             <MainPageItem
               key={3}
@@ -49,13 +49,6 @@ class MainPage extends React.Component {
               page={this.props.pages[4]}
               icon={this.props.icons[4]}
               setPage={this.props.setPage}
-            />
-          </Col>
-          <Col key={5} lg={2}>
-            <MainPageExit
-              key={5}
-              page={this.props.pages[5]}
-              icon={this.props.icons[5]}
             />
           </Col>
         </Row>

@@ -3,13 +3,11 @@ import { Button } from "react-bootstrap";
 import MainPage from "./MainPage";
 import PlayPage from "./PlayPage";
 import SlidesPage from "./SlidesPage";
-import SlideshowsPage from "./SlideshowsPage";
 import SettingsPage from "./SettingsPage";
 import HelpPage from "./HelpPage";
 import "../css/App.css";
 import play from "../assets/icons/play.png";
 import slides from "../assets/icons/slides.png";
-import slideshows from "../assets/icons/slideshows.png";
 import settings from "../assets/icons/settings.png";
 import help from "../assets/icons/help.png";
 import exit from "../assets/icons/exit.png";
@@ -19,6 +17,8 @@ const socket = openSocket("http://localhost:8000");
 
 class App extends React.Component {
   state = {
+    /// DEFAULT TRANSITION TIME = 5 SEC ///
+    transitionTime: 5000,
     /// EXAMPLE SLIDES ///
     slides: [
       {
@@ -73,12 +73,10 @@ class App extends React.Component {
     ],
 
     /// GENERAL STATE ///
-    pages: ["Play", "Slides", "Slideshows", "Settings", "Help", "Exit"],
-    icons: [play, slides, slideshows, settings, help, exit],
+    pages: ["Play", "Slides", "Settings", "Help", "Exit"],
+    icons: [play, slides, settings, help, exit],
     currentPage: "Main", // The current sub-page rendered in the main page
-    slideshows: [], // All saved slideshows
     currentSlide: null, // The slide being viewed or edited
-    currentSlideshow: null, // The slideshow being viewed or edited
     spFiles: [], // Metadata of all files in SharePoint
 
     //// LAYOUT STATE ////
@@ -92,29 +90,12 @@ class App extends React.Component {
     autoSize: false // Whether zones resize to fit their content
   };
 
-  /** Fetch all SharePoint files and set the sample slideshow */
+  /** Fetch all SharePoint files */
   componentDidMount = () => {
     this.fetchAllSPMetadata((err, spFiles) => {
       this.setState({
         spFiles
       });
-    });
-
-    this.setState({
-      slideshows: [
-        {
-          name: "Slideshow 1",
-          index: 0,
-          slides: [this.state.slides[0], this.state.slides[1]]
-        },
-        {
-          name: "Slideshow 2",
-          index: 1,
-          slides: [this.state.slides[2]]
-        }
-      ]
-      //const spFiles = await fetchSPFiles();
-      //this.setState({ spFiles });
     });
   };
 
@@ -147,13 +128,6 @@ class App extends React.Component {
   setCurrentSlide = slide => {
     const currentSlide = slide;
     this.setState({ currentSlide });
-  };
-
-  setCurrentSlideshow = index => {
-    this.setState({
-      currentSlideshow: this.state.slideshows[index],
-      currentSlide: null
-    });
   };
 
   /**
@@ -236,15 +210,6 @@ class App extends React.Component {
     this.setState({ slides });
   };
 
-  addSlideshow = () => {
-    const slideshows = this.state.slideshows.concat({
-      // The user-facing name is one higher than the index.
-      name: "Slideshow " + slides.length + 1,
-      index: slides.length
-    });
-    this.setState({ slideshows });
-  };
-
   /** Return the position in the slides list of the slide with the given index. */
   getSlideIndex = index => {
     const slide = this.state.slides.find(slide => slide.index === index);
@@ -296,6 +261,15 @@ class App extends React.Component {
     this.setState({ currentPage: page });
   };
 
+  /** Sets transition time between slides. */
+  setTransitionTime = seconds => {
+    let newTime = { ...this.state.transitionTime };
+    newTime = seconds;
+    this.setState({
+      transitionTime: newTime
+    });
+  };
+
   renderPage = () => {
     if (this.state.currentPage === "Slides") {
       return (
@@ -317,25 +291,13 @@ class App extends React.Component {
       );
     } else if (this.state.currentPage === "Play") {
       return <PlayPage {...this.state} />;
-    } else if (this.state.currentPage === "Slideshows") {
+    } else if (this.state.currentPage === "Settings") {
       return (
-        <SlideshowsPage
-          createElement={this.createElement}
-          addZone={this.addZone}
-          removeZone={this.removeZone}
-          setContent={this.setContent}
-          onLayoutChange={this.onLayoutChange}
-          renderSlidesList={this.renderSlidesList}
-          setCurrentSlide={this.setCurrentSlide}
-          setCurrentSlideshow={this.setCurrentSlideshow}
-          toggleIsAddingContent={this.toggleIsAddingContent}
-          generateIndex={this.generateIndex}
-          setCurrentLayout={this.setCurrentLayout}
+        <SettingsPage
+          setTransitionTime={this.setTransitionTime}
           {...this.state}
         />
       );
-    } else if (this.state.currentPage === "Settings") {
-      return <SettingsPage {...this.state} />;
     } else if (this.state.currentPage === "Help") {
       return <HelpPage {...this.state} />;
     } else {
