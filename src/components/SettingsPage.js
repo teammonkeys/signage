@@ -10,8 +10,6 @@ class SettingsPage extends React.Component {
     if (isNaN(time)) {
       time = 5000; /// if input is invalid, set transition time to default transition time
     }
-    //console.log(time);
-    //comment
     this.props.setTransitionTime(time);
   };
 
