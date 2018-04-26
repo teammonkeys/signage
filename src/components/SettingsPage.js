@@ -2,11 +2,14 @@ import React from "react";
 import { Button, Panel, ListGroup, ListGroupItem } from "react-bootstrap";
 
 class SettingsPage extends React.Component {
-  timeRef = React.createRef();
+  //timeRef = React.createRef();
 
   handleChange = event => {
     event.preventDefault();
     let time = parseFloat(event.target.value) * 1000;
+    if (isNaN(time)) {
+      time = 5000; /// if input is invalid, set transition time to default transition time
+    }
     //console.log(time);
     this.props.setTransitionTime(time);
   };
@@ -24,7 +27,7 @@ class SettingsPage extends React.Component {
               onChange={this.handleChange.bind(this)}
               name="time"
               type="text"
-              ref={this.timeRef}
+              //ref={this.timeRef}
               placeholder={this.props.transitionTime / 1000}
             />
             <label> seconds </label>
